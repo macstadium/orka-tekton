@@ -1,5 +1,5 @@
 #!/bin/sh
-set -ex
+set -e
 
 ORKA_API='http://10.10.10.100'
 LICENSE_KEY='orka-license-key'
@@ -22,16 +22,14 @@ function cleanup()
   curl $FLAGS --request DELETE "${ORKA_API}/resources/vm/purge" \
     --header 'Content-Type: application/json' \
     --header "Authorization: Bearer $TOKEN" \
-    --data-raw "$(cat <<EOF
-{
-  "orka_vm_name": "$VM_NAME"
-}
-EOF
-)"
+    --data-raw "{
+      \"orka_vm_name\": \"${VM_NAME}\"
+    }"
+  echo
 
   curl $FLAGS --request DELETE "${ORKA_API}/token" \
     --header "Authorization: Bearer $TOKEN"
-  echo "Done."
+  echo "\nDone."
 }
 
 trap cleanup EXIT
@@ -52,29 +50,28 @@ curl $FLAGS --request POST "${ORKA_API}/resources/vm/create" \
 }
 EOF
 )"
+echo
 
 # Deploy VM
 VM_DETAILS=$(curl $FLAGS --request POST "${ORKA_API}/resources/vm/deploy" \
   --header 'Content-Type: application/json' \
   --header "Authorization: Bearer $TOKEN" \
-  --data-raw "$(cat <<EOF
-{
-  "orka_vm_name": "$VM_NAME"
-}
-EOF
-)"
-)
+  --data-raw "{
+    \"orka_vm_name\": \"${VM_NAME}\"
+  }"
+  )
+echo $VM_DETAILS
 
 # Extract SSH port and VM id from response
 VM_IP=$(echo $VM_DETAILS | jq -r '.ip')
 SSH_PORT=$(echo $VM_DETAILS | jq -r '.ssh_port')
 
 # Wait for SSH access
-set +e
 TIMEOUT=10
+set +e
 while :; do
   echo "Waiting for ssh access ..."
-  sshpass -p admin ssh -o StrictHostKeyChecking=no -p $SSH_PORT admin@${VM_IP} echo ok 2>&1
+  sshpass -p dmin ssh -o StrictHostKeyChecking=no -p $SSH_PORT admin@${VM_IP} echo ok
   RESULT=$?
   if [ $RESULT -eq 0 ]; then
     echo "Connected"
@@ -93,7 +90,8 @@ done
 set -e
 
 # Copy build
-sshpass -p admin ssh -o StrictHostKeyChecking=no -p $SSH_PORT admin@${VM_IP} "mkdir -p ~/workspace/${VM_NAME}"
-sshpass -p admin scp -o StrictHostKeyChecking=no -P $SSH_PORT script.sh admin@${VM_IP}:~/workspace/${VM_NAME}
-sshpass -p admin ssh -o StrictHostKeyChecking=no -p $SSH_PORT admin@${VM_IP} "cd ~/workspace/${VM_NAME} && ./script.sh && ls -al"
-sshpass -p admin scp -o StrictHostKeyChecking=no -P $SSH_PORT -r admin@${VM_IP}:~/workspace/${VM_NAME} build
+SSH_FLAGS='-o StrictHostKeyChecking=no -o LogLevel=ERROR'
+sshpass -p admin ssh $SSH_FLAGS -p $SSH_PORT admin@${VM_IP} "mkdir -p ~/workspace/${VM_NAME}"
+sshpass -p admin scp $SSH_FLAGS -P $SSH_PORT script.sh admin@${VM_IP}:~/workspace/${VM_NAME}
+sshpass -p admin ssh $SSH_FLAGS -p $SSH_PORT admin@${VM_IP} "cd ~/workspace/${VM_NAME} && ./script.sh"
+sshpass -p admin scp $SSH_FLAGS -P $SSH_PORT -r admin@${VM_IP}:~/workspace/${VM_NAME} build
