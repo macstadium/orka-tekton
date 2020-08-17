@@ -16,7 +16,7 @@ This is a WIP
 1. Get token
 1. Create VM config
 1. Deploy VM
-  - Store IP / port in variables
+    - Store IP / port in variables
 1. Wait for SSH access
 1. Copy build script
 1. Execute build script
