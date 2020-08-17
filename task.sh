@@ -71,10 +71,9 @@ TIMEOUT=10
 set +e
 while :; do
   echo "Waiting for ssh access ..."
-  sshpass -p dmin ssh -o StrictHostKeyChecking=no -p $SSH_PORT admin@${VM_IP} echo ok
+  sshpass -p admin ssh -o StrictHostKeyChecking=no -p $SSH_PORT admin@${VM_IP} echo ok
   RESULT=$?
   if [ $RESULT -eq 0 ]; then
-    echo "Connected"
     break
   elif [ $RESULT -eq 5 ]; then
     echo "Invalid VM username/password"
