@@ -1,0 +1,12 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: tekton-orka
+spec:
+  steps:
+    - name: build
+      image: sburtonmacstadium/tekton-orka
+      command:
+        - echo
+      args:
+        - "Hello World"
