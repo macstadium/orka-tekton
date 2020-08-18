@@ -1,25 +1,25 @@
 #!/bin/sh
 set -ex
 
-ORKA_API='http://10.10.10.100'
-LICENSE_KEY='orka-license-key'
-BASE_IMAGE='catalina-ssh-30G.img'
+# ORKA_API='http://10.10.10.100'
+# LICENSE_KEY='orka-license-key'
+# BASE_IMAGE='catalina-ssh-30G.img'
 
-FLAGS='--location --fail'
+CURL_FLAGS='--location --fail'
 
 # Get token
-TOKEN=$(curl $FLAGS --request POST "${ORKA_API}/token" \
+TOKEN=$(curl $CURL_FLAGS --request POST "${ORKA_API}/token" \
   --header 'Content-Type: application/json' \
-  --data-raw '{
-    "email": "tekton-svc@macstadium.com",
-    "password": "p@ssw0rd"
-  }' \
+  --data-raw "{
+    \"email\": \"$SVC_EMAIL\",
+    \"password\": \"$SVC_PASSWORD\"
+  }" \
   | jq -r '.token'
   )
 
 function cleanup()
 {
-  curl $FLAGS --request DELETE "${ORKA_API}/resources/vm/purge" \
+  curl $CURL_FLAGS --request DELETE "${ORKA_API}/resources/vm/purge" \
     --header 'Content-Type: application/json' \
     --header "Authorization: Bearer $TOKEN" \
     --data-raw "{
@@ -27,7 +27,7 @@ function cleanup()
     }"
   echo
 
-  curl $FLAGS --request DELETE "${ORKA_API}/token" \
+  curl $CURL_FLAGS --request DELETE "${ORKA_API}/token" \
     --header "Authorization: Bearer $TOKEN"
   echo "\nDone."
 }
@@ -36,7 +36,7 @@ trap cleanup EXIT
 
 # Create VM config
 VM_NAME="tekton-$(openssl rand -hex 4)"
-curl $FLAGS --request POST "${ORKA_API}/resources/vm/create" \
+curl $CURL_FLAGS --request POST "${ORKA_API}/resources/vm/create" \
   --header 'Content-Type: application/json' \
   --header "Authorization: Bearer $TOKEN" \
   --data-raw "$(cat <<EOF
@@ -53,7 +53,7 @@ EOF
 echo
 
 # Deploy VM
-VM_DETAILS=$(curl $FLAGS --request POST "${ORKA_API}/resources/vm/deploy" \
+VM_DETAILS=$(curl $CURL_FLAGS --request POST "${ORKA_API}/resources/vm/deploy" \
   --header 'Content-Type: application/json' \
   --header "Authorization: Bearer $TOKEN" \
   --data-raw "{
@@ -72,7 +72,7 @@ TIMEOUT=10
 set +e
 while :; do
   echo "Waiting for ssh access ..."
-  sshpass -p admin ssh $SSH_FLAGS -p $SSH_PORT admin@${VM_IP} echo ok
+  sshpass -p $SSH_PASSWORD ssh $SSH_FLAGS -p $SSH_PORT ${SSH_USERNAME}@${VM_IP} echo ok
   RESULT=$?
   if [ $RESULT -eq 0 ]; then
     break
@@ -100,7 +100,7 @@ nvram -xp > out/nvram.xml
 EOF
 
 # Copy build
-sshpass -p admin ssh $SSH_FLAGS -p $SSH_PORT admin@${VM_IP} "mkdir -p ~/workspace/${VM_NAME}"
-sshpass -p admin scp $SSH_FLAGS -P $SSH_PORT $SCRIPT admin@${VM_IP}:~/workspace/${VM_NAME}/script.sh
-sshpass -p admin ssh $SSH_FLAGS -p $SSH_PORT admin@${VM_IP} "cd ~/workspace/${VM_NAME} && sh script.sh && rm script.sh"
-sshpass -p admin scp $SSH_FLAGS -P $SSH_PORT -r admin@${VM_IP}:~/workspace/${VM_NAME} .
+sshpass -p $SSH_PASSWORD ssh $SSH_FLAGS -p $SSH_PORT ${SSH_USERNAME}@${VM_IP} "mkdir -p ~/workspace/${VM_NAME}"
+sshpass -p $SSH_PASSWORD scp $SSH_FLAGS -P $SSH_PORT $SCRIPT ${SSH_USERNAME}@${VM_IP}:~/workspace/${VM_NAME}/script.sh
+sshpass -p $SSH_PASSWORD ssh $SSH_FLAGS -p $SSH_PORT ${SSH_USERNAME}@${VM_IP} "cd ~/workspace/${VM_NAME} && sh script.sh && rm script.sh"
+sshpass -p $SSH_PASSWORD scp $SSH_FLAGS -P $SSH_PORT -r ${SSH_USERNAME}@${VM_IP}:~/workspace/${VM_NAME} .

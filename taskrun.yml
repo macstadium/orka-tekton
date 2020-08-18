@@ -1,3 +1,4 @@
+---
 apiVersion: tekton.dev/v1beta1
 kind: TaskRun
 metadata:
@@ -5,3 +6,12 @@ metadata:
 spec:
   taskRef:
     name: tekton-orka
+  params:
+    - name: orka-api-url
+      value: http://10.10.10.100
+    - name: base-image
+      value: catalina-ssh-30G.img
+    - name: ssh-username
+      value: admin
+    - name: ssh-password
+      value: admin

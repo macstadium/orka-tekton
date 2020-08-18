@@ -1,12 +1,49 @@
+---
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: tekton-orka
 spec:
+  params:
+    - name: orka-api-url
+      type: string
+      default: http://10.221.188.100
+    - name: base-image
+      type: string
+    - name: ssh-username
+      type: string
+    - name: ssh-password
+      type: string
   steps:
     - name: build
       image: sburtonmacstadium/tekton-orka
-      script: |
-        tekton-orka
-        pwd
-        ls -al
+      env:
+        - name: ORKA_API
+          value: $(params.orka-api-url)
+        - name: BASE_IMAGE
+          value: $(params.base-image)
+        - name: SSH_USERNAME
+          value: $(params.ssh-username)
+        - name: SSH_PASSWORD
+          value: $(params.ssh-password)
+        - name: SVC_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: tekton-orka-creds
+              key: email
+        - name: SVC_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: tekton-orka-creds
+              key: password
+        - name: LICENSE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: tekton-orka-creds
+              key: licenseKey
+      command:
+        - tekton-orka
+      #script: |
+      #  tekton-orka
+      #  pwd
+      #  ls -al
