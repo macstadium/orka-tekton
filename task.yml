@@ -14,6 +14,8 @@ spec:
       type: string
     - name: ssh-password
       type: string
+    - name: script
+      type: string
   steps:
     - name: build
       image: sburtonmacstadium/tekton-orka
@@ -41,9 +43,12 @@ spec:
             secretKeyRef:
               name: tekton-orka-creds
               key: licenseKey
-      command:
-        - tekton-orka
-      #script: |
-      #  tekton-orka
-      #  pwd
-      #  ls -al
+      # command:
+      #   - tekton-orka
+      # args:
+      #   - $(params.script)
+      script: |
+        echo "$(params.script)" > script.sh
+        tekton-orka
+        pwd
+        ls -al

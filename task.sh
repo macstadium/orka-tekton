@@ -90,14 +90,15 @@ done
 set -e
 
 SCRIPT=$(mktemp)
-cat <<EOF > $SCRIPT
-#!/bin/sh
+mv script.sh $SCRIPT
+# cat <<EOF > $SCRIPT
+# #!/bin/sh
 
-set -ex
+# set -ex
 
-mkdir -p out
-nvram -xp > out/nvram.xml
-EOF
+# mkdir -p out
+# nvram -xp > out/nvram.xml
+# EOF
 
 # Copy build
 sshpass -p $SSH_PASSWORD ssh $SSH_FLAGS -p $SSH_PORT ${SSH_USERNAME}@${VM_IP} "mkdir -p ~/workspace/${VM_NAME}"
