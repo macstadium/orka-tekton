@@ -6,7 +6,7 @@ spec:
   steps:
     - name: build
       image: sburtonmacstadium/tekton-orka
-      #command:
-      #  - ls 
-      #args:
-      #  - -al
+      script: |
+        tekton-orka
+        pwd
+        ls -al
