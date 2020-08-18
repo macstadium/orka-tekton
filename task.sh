@@ -1,5 +1,5 @@
 #!/bin/sh
-set -e
+set -ex
 
 ORKA_API='http://10.10.10.100'
 LICENSE_KEY='orka-license-key'
@@ -88,9 +88,19 @@ while :; do
 done
 set -e
 
+SCRIPT=$(mktemp)
+cat <<EOF > $SCRIPT
+#!/bin/sh
+
+set -ex
+
+mkdir -p out
+nvram -xp > out/nvram.xml
+EOF
+
 # Copy build
 SSH_FLAGS='-o StrictHostKeyChecking=no -o LogLevel=ERROR'
 sshpass -p admin ssh $SSH_FLAGS -p $SSH_PORT admin@${VM_IP} "mkdir -p ~/workspace/${VM_NAME}"
-sshpass -p admin scp $SSH_FLAGS -P $SSH_PORT script.sh admin@${VM_IP}:~/workspace/${VM_NAME}
-sshpass -p admin ssh $SSH_FLAGS -p $SSH_PORT admin@${VM_IP} "cd ~/workspace/${VM_NAME} && ./script.sh"
-sshpass -p admin scp $SSH_FLAGS -P $SSH_PORT -r admin@${VM_IP}:~/workspace/${VM_NAME} build
+sshpass -p admin scp $SSH_FLAGS -P $SSH_PORT $SCRIPT admin@${VM_IP}:~/workspace/${VM_NAME}/script.sh
+sshpass -p admin ssh $SSH_FLAGS -p $SSH_PORT admin@${VM_IP} "cd ~/workspace/${VM_NAME} && sh script.sh && rm script.sh"
+sshpass -p admin scp $SSH_FLAGS -P $SSH_PORT -r admin@${VM_IP}:~/workspace/${VM_NAME} .

@@ -6,7 +6,7 @@ spec:
   steps:
     - name: build
       image: sburtonmacstadium/tekton-orka
-      command:
-        - echo
-      args:
-        - "Hello World"
+      #command:
+      #  - ls 
+      #args:
+      #  - -al
