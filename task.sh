@@ -67,11 +67,12 @@ VM_IP=$(echo $VM_DETAILS | jq -r '.ip')
 SSH_PORT=$(echo $VM_DETAILS | jq -r '.ssh_port')
 
 # Wait for SSH access
+SSH_FLAGS='-o StrictHostKeyChecking=no -o ConnectTimeout=10 -o LogLevel=ERROR'
 TIMEOUT=10
 set +e
 while :; do
   echo "Waiting for ssh access ..."
-  sshpass -p admin ssh -o StrictHostKeyChecking=no -p $SSH_PORT admin@${VM_IP} echo ok
+  sshpass -p admin ssh $SSH_FLAGS -p $SSH_PORT admin@${VM_IP} echo ok
   RESULT=$?
   if [ $RESULT -eq 0 ]; then
     break
@@ -99,7 +100,6 @@ nvram -xp > out/nvram.xml
 EOF
 
 # Copy build
-SSH_FLAGS='-o StrictHostKeyChecking=no -o LogLevel=ERROR'
 sshpass -p admin ssh $SSH_FLAGS -p $SSH_PORT admin@${VM_IP} "mkdir -p ~/workspace/${VM_NAME}"
 sshpass -p admin scp $SSH_FLAGS -P $SSH_PORT $SCRIPT admin@${VM_IP}:~/workspace/${VM_NAME}/script.sh
 sshpass -p admin ssh $SSH_FLAGS -p $SSH_PORT admin@${VM_IP} "cd ~/workspace/${VM_NAME} && sh script.sh && rm script.sh"
