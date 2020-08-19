@@ -11,6 +11,7 @@ spec:
       value: http://10.10.10.100
     - name: base-image
       value: catalina-ssh-30G.img
+      # value: catalina-buildtools-90G.img
     - name: ssh-username
       value: admin
     - name: ssh-password
@@ -19,3 +20,12 @@ spec:
       value: |
         mkdir -p out
         nvram -xp > out/nvram.xml
+        ls -al
+        # git clone https://github.com/audiokit/AudioKit.git
+        # cd AudioKit/AudioKit/iOS
+        # ls -al
+        # time xcodebuild
+        # ls -al
+  workspaces:
+    - name: orka
+      emptyDir: {}

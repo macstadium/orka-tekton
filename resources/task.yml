@@ -52,12 +52,11 @@ spec:
             secretKeyRef:
               name: tekton-orka-creds
               key: licenseKey
-      command:
-        - tekton-orka
-      # script: |
-      #   echo "$(params.script)" > script.sh
-      #   tekton-orka
-      #   pwd
-      #   ls -al
-      #   ls -al /tekton/results
-      #   cat /tekton/results/vm-config
+      # command:
+      #   - tekton-orka
+      script: |
+        tekton-orka
+        cat /tekton/results/vm-config
+        ls -al $(workspaces.orka.path)
+  workspaces:
+    - name: orka

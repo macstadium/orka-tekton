@@ -1,10 +1,6 @@
 #!/bin/sh
 set -e
 
-# ORKA_API='http://10.10.10.100'
-# LICENSE_KEY='orka-license-key'
-# BASE_IMAGE='catalina-ssh-30G.img'
-
 CURL_FLAGS='--location --fail'
 
 # Get token
@@ -92,6 +88,8 @@ while :; do
 done
 set -e
 
+WORKSPACE=/workspace/orka
+
 # If script does not start with shebang, prepend it
 SCRIPT=$(mktemp)
 [[ ! $(head -c2 script.sh) == \#! ]] && cat > $SCRIPT << EOF
@@ -99,11 +97,11 @@ SCRIPT=$(mktemp)
 set -ex
 EOF
 cat script.sh >> $SCRIPT && rm script.sh
-chmod 755 $SCRIPT
+chmod 755 $SCRIPT && mv $SCRIPT ${WORKSPACE}/${VM_NAME}.sh
 
 # Copy build
 echo "Running script in VM ..."
 sshpass -p $SSH_PASSWORD ssh $SSH_FLAGS -p $SSH_PORT ${SSH_USERNAME}@${VM_IP} "mkdir -p ~/workspace/${VM_NAME}"
-sshpass -p $SSH_PASSWORD scp $SSH_FLAGS -P $SSH_PORT $SCRIPT ${SSH_USERNAME}@${VM_IP}:~/workspace/${VM_NAME}/${VM_NAME}.sh
-sshpass -p $SSH_PASSWORD ssh $SSH_FLAGS -p $SSH_PORT ${SSH_USERNAME}@${VM_IP} "cd ~/workspace/${VM_NAME} && ./${VM_NAME}.sh && rm ${VM_NAME}.sh"
-sshpass -p $SSH_PASSWORD scp $SSH_FLAGS -P $SSH_PORT -r ${SSH_USERNAME}@${VM_IP}:~/workspace/${VM_NAME} .
+sshpass -p $SSH_PASSWORD scp $SSH_FLAGS -P $SSH_PORT -r $WORKSPACE ${SSH_USERNAME}@${VM_IP}:~/workspace/${VM_NAME}
+sshpass -p $SSH_PASSWORD ssh $SSH_FLAGS -p $SSH_PORT ${SSH_USERNAME}@${VM_IP} "cd ~/workspace/${VM_NAME}/orka && ./${VM_NAME}.sh"
+sshpass -p $SSH_PASSWORD scp $SSH_FLAGS -P $SSH_PORT -r ${SSH_USERNAME}@${VM_IP}:~/workspace/${VM_NAME}/orka /workspace
