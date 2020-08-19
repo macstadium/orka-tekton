@@ -19,6 +19,13 @@ spec:
   results:
     - name: vm-config
   steps:
+    - name: copy-script
+      image: sburtonmacstadium/tekton-orka
+      command:
+        - /bin/sh
+      args:
+        - -c
+        - set -ex && echo "$(params.script)" > script.sh
     - name: build
       image: sburtonmacstadium/tekton-orka
       env:
@@ -45,14 +52,12 @@ spec:
             secretKeyRef:
               name: tekton-orka-creds
               key: licenseKey
-      # command:
-      #   - tekton-orka
-      # args:
-      #   - $(params.script)
-      script: |
-        echo "$(params.script)" > script.sh
-        tekton-orka
-        pwd
-        ls -al
-        ls -al /tekton/results
-        cat /tekton/results/vm-config
+      command:
+        - tekton-orka
+      # script: |
+      #   echo "$(params.script)" > script.sh
+      #   tekton-orka
+      #   pwd
+      #   ls -al
+      #   ls -al /tekton/results
+      #   cat /tekton/results/vm-config
