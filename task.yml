@@ -16,6 +16,8 @@ spec:
       type: string
     - name: script
       type: string
+  results:
+    - name: vm-config
   steps:
     - name: build
       image: sburtonmacstadium/tekton-orka
@@ -52,3 +54,5 @@ spec:
         tekton-orka
         pwd
         ls -al
+        ls -al /tekton/results
+        cat /tekton/results/vm-config

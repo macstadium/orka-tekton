@@ -1,5 +1,5 @@
 #!/bin/sh
-set -ex
+set -e
 
 # ORKA_API='http://10.10.10.100'
 # LICENSE_KEY='orka-license-key'
@@ -8,7 +8,7 @@ set -ex
 CURL_FLAGS='--location --fail'
 
 # Get token
-TOKEN=$(curl $CURL_FLAGS --request POST "${ORKA_API}/token" \
+TOKEN=$(curl $CURL_FLAGS --connect-timeout 10 --request POST "${ORKA_API}/token" \
   --header 'Content-Type: application/json' \
   --data-raw "{
     \"email\": \"$SVC_EMAIL\",
@@ -16,6 +16,11 @@ TOKEN=$(curl $CURL_FLAGS --request POST "${ORKA_API}/token" \
   }" \
   | jq -r '.token'
   )
+if [ -z "$TOKEN" ]; then
+  echo "Check Orka API endpoint: $ORKA_API"
+  exit 1
+fi
+echo "Successfully fetched token"
 
 function cleanup()
 {
@@ -39,18 +44,15 @@ VM_NAME="tekton-$(openssl rand -hex 4)"
 curl $CURL_FLAGS --request POST "${ORKA_API}/resources/vm/create" \
   --header 'Content-Type: application/json' \
   --header "Authorization: Bearer $TOKEN" \
-  --data-raw "$(cat <<EOF
-{
-  "orka_vm_name": "$VM_NAME",
-  "orka_base_image": "$BASE_IMAGE",
-  "orka_image": "$VM_NAME",
-  "orka_cpu_core": 6,
-  "vcpu_count": 6,
-  "vnc_console": true
-}
-EOF
-)"
-echo
+  --data-raw "{
+    \"orka_vm_name\": \"$VM_NAME\",
+    \"orka_base_image\": \"$BASE_IMAGE\",
+    \"orka_image\": \"$VM_NAME\",
+    \"orka_cpu_core\": 6,
+    \"vcpu_count\": 6,
+    \"vnc_console\": true
+  }"
+echo $VM_NAME | tee /tekton/results/vm-config
 
 # Deploy VM
 VM_DETAILS=$(curl $CURL_FLAGS --request POST "${ORKA_API}/resources/vm/deploy" \
@@ -85,23 +87,23 @@ while :; do
     echo "Timed out waiting for ssh access"
     exit 1
   fi
+  echo "$TIMEOUT retries remaining"
   sleep 5
 done
 set -e
 
+# If script does not start with shebang, prepend it
 SCRIPT=$(mktemp)
-mv script.sh $SCRIPT
-# cat <<EOF > $SCRIPT
-# #!/bin/sh
-
-# set -ex
-
-# mkdir -p out
-# nvram -xp > out/nvram.xml
-# EOF
+[[ ! $(head -c2 script.sh) == \#! ]] && cat > $SCRIPT << EOF
+#!/bin/sh
+set -ex
+EOF
+cat script.sh >> $SCRIPT && rm script.sh
+chmod 755 $SCRIPT
 
 # Copy build
+echo "Running script in VM ..."
 sshpass -p $SSH_PASSWORD ssh $SSH_FLAGS -p $SSH_PORT ${SSH_USERNAME}@${VM_IP} "mkdir -p ~/workspace/${VM_NAME}"
-sshpass -p $SSH_PASSWORD scp $SSH_FLAGS -P $SSH_PORT $SCRIPT ${SSH_USERNAME}@${VM_IP}:~/workspace/${VM_NAME}/script.sh
-sshpass -p $SSH_PASSWORD ssh $SSH_FLAGS -p $SSH_PORT ${SSH_USERNAME}@${VM_IP} "cd ~/workspace/${VM_NAME} && sh script.sh && rm script.sh"
+sshpass -p $SSH_PASSWORD scp $SSH_FLAGS -P $SSH_PORT $SCRIPT ${SSH_USERNAME}@${VM_IP}:~/workspace/${VM_NAME}/${VM_NAME}.sh
+sshpass -p $SSH_PASSWORD ssh $SSH_FLAGS -p $SSH_PORT ${SSH_USERNAME}@${VM_IP} "cd ~/workspace/${VM_NAME} && ./${VM_NAME}.sh && rm ${VM_NAME}.sh"
 sshpass -p $SSH_PASSWORD scp $SSH_FLAGS -P $SSH_PORT -r ${SSH_USERNAME}@${VM_IP}:~/workspace/${VM_NAME} .

@@ -17,9 +17,5 @@ spec:
       value: admin
     - name: script
       value: |
-        #!/bin/sh
-
-        set -ex
-
         mkdir -p out
         nvram -xp > out/nvram.xml
