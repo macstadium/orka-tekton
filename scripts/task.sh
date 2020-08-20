@@ -48,7 +48,7 @@ curl $CURL_FLAGS --request POST "${ORKA_API}/resources/vm/create" \
     \"vcpu_count\": 6,
     \"vnc_console\": true
   }"
-echo $VM_NAME | tee /tekton/results/vm-config
+echo $VM_NAME | tee /tekton/results/vm-name
 
 # Deploy VM
 VM_DETAILS=$(curl $CURL_FLAGS --request POST "${ORKA_API}/resources/vm/deploy" \
@@ -105,3 +105,6 @@ sshpass -p $SSH_PASSWORD ssh $SSH_FLAGS -p $SSH_PORT ${SSH_USERNAME}@${VM_IP} "m
 sshpass -p $SSH_PASSWORD scp $SSH_FLAGS -P $SSH_PORT -r $WORKSPACE ${SSH_USERNAME}@${VM_IP}:~/workspace/${VM_NAME}
 sshpass -p $SSH_PASSWORD ssh $SSH_FLAGS -p $SSH_PORT ${SSH_USERNAME}@${VM_IP} "cd ~/workspace/${VM_NAME}/orka && ./${VM_NAME}.sh"
 sshpass -p $SSH_PASSWORD scp $SSH_FLAGS -P $SSH_PORT -r ${SSH_USERNAME}@${VM_IP}:~/workspace/${VM_NAME}/orka /workspace
+
+# Clean up
+rm ${WORKSPACE}/${VM_NAME}.sh

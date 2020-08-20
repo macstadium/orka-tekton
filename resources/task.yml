@@ -17,15 +17,16 @@ spec:
     - name: script
       type: string
   results:
-    - name: vm-config
+    - name: vm-name
   steps:
     - name: copy-script
       image: sburtonmacstadium/tekton-orka
-      command:
-        - /bin/sh
-      args:
-        - -c
-        - set -ex && echo "$(params.script)" > script.sh
+      # Safeguard against having to escape quotes in script
+      script: |
+        #!/bin/sh
+        cat > script.sh << EOF
+        $(params.script)
+        EOF
     - name: build
       image: sburtonmacstadium/tekton-orka
       env:
@@ -56,7 +57,7 @@ spec:
       #   - tekton-orka
       script: |
         tekton-orka
-        cat /tekton/results/vm-config
+        cat /tekton/results/vm-name
         ls -al $(workspaces.orka.path)
   workspaces:
     - name: orka
