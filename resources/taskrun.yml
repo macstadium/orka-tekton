@@ -20,12 +20,13 @@ spec:
       value: |
         mkdir -p out
         nvram -xp > out/nvram.xml
+        echo "# Hello World" >> README.md
         ls -al
         # git clone https://github.com/audiokit/AudioKit.git
         # cd AudioKit/AudioKit/iOS
-        # ls -al
         # time xcodebuild
-        # ls -al
   workspaces:
     - name: orka
-      emptyDir: {}
+      # emptyDir: {}
+      persistentVolumeClaim:
+        claimName: tekton-orka-pvc
