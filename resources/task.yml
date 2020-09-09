@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: tekton-orka
+  name: orka-full
 spec:
   params:
     - name: orka-api-url
@@ -21,12 +21,20 @@ spec:
   steps:
     - name: copy-script
       image: sburtonmacstadium/tekton-orka
-      # Safeguard against having to escape quotes in script
       script: |
         #!/bin/sh
-        cat > script.sh << EOF
+        SCRIPT=$(mktemp)
+        # Safeguard against having to escape quotes / vars in script
+        cat > $SCRIPT << 'EOF'
         $(params.script)
         EOF
+        # If script does not start with shebang, prepend it
+        [[ ! $(head -c2 $SCRIPT) == \#! ]] && cat > build << EOF
+        #!/bin/sh
+        set -ex
+        EOF
+        cat $SCRIPT >> build
+        chmod 755 build
     - name: build
       image: sburtonmacstadium/tekton-orka
       env:
@@ -56,8 +64,15 @@ spec:
       # command:
       #   - tekton-orka
       script: |
+        #!/bin/sh
+        # set -x
+        # VM_NAME=$(cat /tekton/results/vm-name)
+        # echo "Build script:"
+        # cat $VM_NAME
+        echo "WOW" >> $(workspaces.orka.path)/wow.txt
         tekton-orka
-        cat /tekton/results/vm-name
+        ls -al
+        # cat /tekton/results/vm-name
         ls -al $(workspaces.orka.path)
   workspaces:
     - name: orka

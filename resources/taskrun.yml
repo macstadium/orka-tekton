@@ -2,10 +2,10 @@
 apiVersion: tekton.dev/v1beta1
 kind: TaskRun
 metadata:
-  name: run-tekton-orka
+  name: run-orka-full
 spec:
   taskRef:
-    name: tekton-orka
+    name: orka-full
   params:
     - name: orka-api-url
       value: http://10.10.10.100
@@ -20,7 +20,8 @@ spec:
       value: |
         mkdir -p out
         nvram -xp > out/nvram.xml
-        echo "# Hello World" >> README.md
+        GREETING="Hello World"
+        echo "# $GREETING" >> README.md
         ls -al
         # git clone https://github.com/audiokit/AudioKit.git
         # cd AudioKit/AudioKit/iOS

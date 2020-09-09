@@ -26,11 +26,11 @@ function cleanup()
     --data-raw "{
       \"orka_vm_name\": \"${VM_NAME}\"
     }"
-  echo
+  echo -e "\nPurged VM $VM_NAME"
 
   curl $CURL_FLAGS --request DELETE "${ORKA_API}/token" \
     --header "Authorization: Bearer $TOKEN"
-  echo "\nDone."
+  echo -e "\nDone."
 }
 
 trap cleanup EXIT
@@ -48,7 +48,9 @@ curl $CURL_FLAGS --request POST "${ORKA_API}/resources/vm/create" \
     \"vcpu_count\": 6,
     \"vnc_console\": true
   }"
+echo -e "\nSuccessfully created VM config"
 echo $VM_NAME | tee /tekton/results/vm-name
+
 
 # Deploy VM
 VM_DETAILS=$(curl $CURL_FLAGS --request POST "${ORKA_API}/resources/vm/deploy" \
@@ -84,27 +86,12 @@ while :; do
     exit 1
   fi
   echo "$TIMEOUT retries remaining"
-  sleep 5
+  sleep 7
 done
 set -e
 
-WORKSPACE=/workspace/orka
-
-# If script does not start with shebang, prepend it
-SCRIPT=$(mktemp)
-[[ ! $(head -c2 script.sh) == \#! ]] && cat > $SCRIPT << EOF
-#!/bin/sh
-set -ex
-EOF
-cat script.sh >> $SCRIPT && rm script.sh
-chmod 755 $SCRIPT && mv $SCRIPT ${WORKSPACE}/${VM_NAME}.sh
-
 # Copy build
 echo "Running script in VM ..."
-sshpass -p $SSH_PASSWORD ssh $SSH_FLAGS -p $SSH_PORT ${SSH_USERNAME}@${VM_IP} "mkdir -p ~/workspace/${VM_NAME}"
-sshpass -p $SSH_PASSWORD scp $SSH_FLAGS -P $SSH_PORT -r $WORKSPACE ${SSH_USERNAME}@${VM_IP}:~/workspace/${VM_NAME}
-sshpass -p $SSH_PASSWORD ssh $SSH_FLAGS -p $SSH_PORT ${SSH_USERNAME}@${VM_IP} "cd ~/workspace/${VM_NAME}/orka && ./${VM_NAME}.sh"
-sshpass -p $SSH_PASSWORD scp $SSH_FLAGS -P $SSH_PORT -r ${SSH_USERNAME}@${VM_IP}:~/workspace/${VM_NAME}/orka /workspace
-
-# Clean up
-rm ${WORKSPACE}/${VM_NAME}.sh
+sshpass -p $SSH_PASSWORD scp $SSH_FLAGS -P $SSH_PORT -r /workspace ${SSH_USERNAME}@${VM_IP}:~
+sshpass -p $SSH_PASSWORD ssh $SSH_FLAGS -p $SSH_PORT ${SSH_USERNAME}@${VM_IP} "cd ~/workspace/orka && ~/workspace/build"
+sshpass -p $SSH_PASSWORD scp $SSH_FLAGS -P $SSH_PORT -r ${SSH_USERNAME}@${VM_IP}:~/workspace/orka /workspace
