@@ -20,6 +20,7 @@ echo "Successfully fetched token"
 
 function cleanup()
 {
+  set +x
   curl $CURL_FLAGS --request DELETE "${ORKA_API}/resources/vm/purge" \
     --header 'Content-Type: application/json' \
     --header "Authorization: Bearer $TOKEN" \
@@ -92,6 +93,10 @@ set -e
 
 # Copy build
 echo "Running script in VM ..."
-sshpass -p $SSH_PASSWORD scp $SSH_FLAGS -P $SSH_PORT -r /workspace ${SSH_USERNAME}@${VM_IP}:~
+set -x
+sshpass -p $SSH_PASSWORD rsync -av --progress -e "ssh $SSH_FLAGS -p $SSH_PORT" /workspace ${SSH_USERNAME}@${VM_IP}:~
 sshpass -p $SSH_PASSWORD ssh $SSH_FLAGS -p $SSH_PORT ${SSH_USERNAME}@${VM_IP} "cd ~/workspace/orka && ~/workspace/build"
-sshpass -p $SSH_PASSWORD scp $SSH_FLAGS -P $SSH_PORT -r ${SSH_USERNAME}@${VM_IP}:~/workspace/orka /workspace
+sshpass -p $SSH_PASSWORD rsync -av --progress -e "ssh $SSH_FLAGS -p $SSH_PORT" ${SSH_USERNAME}@${VM_IP}:~/workspace/orka /workspace
+# sshpass -p $SSH_PASSWORD scp $SSH_FLAGS -P $SSH_PORT -r /workspace ${SSH_USERNAME}@${VM_IP}:~
+# sshpass -p $SSH_PASSWORD ssh $SSH_FLAGS -p $SSH_PORT ${SSH_USERNAME}@${VM_IP} "cd ~/workspace/orka && ~/workspace/build"
+# sshpass -p $SSH_PASSWORD scp $SSH_FLAGS -P $SSH_PORT -r ${SSH_USERNAME}@${VM_IP}:~/workspace/orka /workspace

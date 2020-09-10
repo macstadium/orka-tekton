@@ -61,18 +61,18 @@ spec:
             secretKeyRef:
               name: tekton-orka-creds
               key: licenseKey
-      # command:
-      #   - tekton-orka
-      script: |
-        #!/bin/sh
-        # set -x
-        # VM_NAME=$(cat /tekton/results/vm-name)
-        # echo "Build script:"
-        # cat $VM_NAME
-        echo "WOW" >> $(workspaces.orka.path)/wow.txt
-        tekton-orka
-        ls -al
-        # cat /tekton/results/vm-name
-        ls -al $(workspaces.orka.path)
+      command:
+        - tekton-orka
+      # script: |
+      #   #!/bin/sh
+      #   # set -x
+      #   # VM_NAME=$(cat /tekton/results/vm-name)
+      #   # echo "Build script:"
+      #   # cat $VM_NAME
+      #   # echo "WOW" >> $(workspaces.orka.path)/wow.txt
+      #   tekton-orka
+      #   ls -al
+      #   # cat /tekton/results/vm-name
+      #   ls -al $(workspaces.orka.path)
   workspaces:
     - name: orka

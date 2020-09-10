@@ -11,23 +11,17 @@ spec:
       value: http://10.10.10.100
     - name: base-image
       value: catalina-ssh-30G.img
-      # value: catalina-buildtools-90G.img
     - name: ssh-username
       value: admin
     - name: ssh-password
       value: admin
     - name: script
       value: |
-        mkdir -p out
-        nvram -xp > out/nvram.xml
-        GREETING="Hello World"
-        echo "# $GREETING" >> README.md
-        ls -al
-        # git clone https://github.com/audiokit/AudioKit.git
-        # cd AudioKit/AudioKit/iOS
-        # time xcodebuild
+        DISK_INFO=$(mktemp)
+        diskutil info / > $DISK_INFO
+        cat $DISK_INFO
   workspaces:
     - name: orka
-      # emptyDir: {}
-      persistentVolumeClaim:
-        claimName: tekton-orka-pvc
+      emptyDir: {}
+      # persistentVolumeClaim:
+      #   claimName: tekton-orka-pvc

@@ -1,0 +1,75 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: orka-pipeline
+spec:
+  workspaces:
+    - name: shared-data
+  tasks:
+    - name: fetch-repo
+      taskRef:
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: shared-data
+      params:
+        - name: url
+          value: https://github.com/audiokit/AudioKit.git
+    - name: build-audiokit
+      runAfter:
+        - fetch-repo
+      taskRef:
+        name: orka-full
+      params:
+        - name: orka-api-url
+          value: http://10.10.10.100
+        - name: base-image
+          value: catalina-buildtools-90G.img
+        - name: ssh-username
+          value: admin
+        - name: ssh-password
+          value: admin
+        - name: script
+          value: |
+            cd AudioKit/iOS
+            time xcodebuild
+      workspaces:
+        - name: orka
+          workspace: shared-data
+    - name: show-build
+      runAfter:
+        - build-audiokit
+      workspaces:
+        - name: source
+          workspace: shared-data
+      taskSpec:
+        workspaces:
+          - name: source
+        steps:
+          - name: list
+            image: sburtonmacstadium/tekton-orka
+            script: |
+              #!/bin/sh
+              set -ex
+              ls -al $(workspaces.source.path)/AudioKit/iOS
+              ls -al $(workspaces.source.path)/AudioKit/iOS/build
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: run-orka-pipeline
+spec:
+  pipelineRef:
+    name: orka-pipeline
+  workspaces:
+    - name: shared-data
+      persistentVolumeClaim:
+        claimName: tekton-orka-pvc
+      # volumeClaimTemplate:
+      #   spec:
+      #     accessModes:
+      #     - ReadWriteOnce
+      #     resources:
+      #       requests:
+      #         storage: 1Gi
