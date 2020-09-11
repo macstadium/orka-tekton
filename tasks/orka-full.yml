@@ -10,8 +10,13 @@ spec:
       default: http://10.221.188.100
     - name: base-image
       type: string
+    - name: ssh-username
+      type: string
     - name: script
       type: string
+    - name: copy-build
+      type: string
+      default: "true"
     - name: ssh-key
       type: string
       default: "false"
@@ -30,8 +35,6 @@ spec:
     - name: orka-creds-license-key
       type: string
       default: licenseKey
-    - name: ssh-username
-      type: string
     - name: ssh-secret
       type: string
       default: orka-ssh-pw
@@ -61,6 +64,8 @@ spec:
           value: $(params.base-image)
         - name: VERBOSE
           value: $(params.verbose)
+        - name: COPY_BUILD
+          value: $(params.copy-build)
         - name: SSH_USERNAME
           value: $(params.ssh-username)
         - name: SSH_PASSFILE

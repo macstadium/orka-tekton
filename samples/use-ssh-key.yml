@@ -21,6 +21,8 @@ spec:
       value: "true"
     - name: verbose
       value: "true"
+    - name: copy-build
+      value: "false"
     - name: script
       value: |
         #!/usr/bin/env ruby
