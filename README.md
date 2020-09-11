@@ -40,7 +40,7 @@ stringData:
 
 Create a secret from an ssh key:
 
-`kubectl create secret generic orka-ssh-key --from-file=id_rsa=<path>`
+`kubectl create secret generic orka-ssh-key --from-file=id_rsa=/path/to/id_rsa`
 
 ## Tekton Task Docker Image
 

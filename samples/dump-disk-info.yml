@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: TaskRun
 metadata:
-  name: run-orka-full
+  name: dump-disk-info
 spec:
   taskRef:
     name: orka-full

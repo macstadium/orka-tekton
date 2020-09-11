@@ -23,8 +23,8 @@ spec:
       value: "true"
     - name: script
       value: |
-        #!/bin/bash
-        echo ok
+        #!/usr/bin/env ruby
+        puts "Hello macOS"
   workspaces:
     - name: orka
       emptyDir: {}
