@@ -10,11 +10,14 @@ spec:
       default: http://10.221.188.100
     - name: base-image
       type: string
-    - name: verbose
-      type: string
-      default: "true"
     - name: script
       type: string
+    - name: ssh-key
+      type: string
+      default: "false"
+    - name: verbose
+      type: string
+      default: "false"
     - name: orka-creds-secret
       type: string
       default: orka-creds
@@ -60,8 +63,10 @@ spec:
           value: $(params.verbose)
         - name: SSH_USERNAME
           value: $(params.ssh-username)
-        - name: SSH_PASSWORD
+        - name: SSH_PASSFILE
           value: /etc/$(params.ssh-secret)/$(params.ssh-secret-key)
+        - name: SSH_KEY
+          value: $(params.ssh-key)
         - name: SVC_EMAIL
           valueFrom:
             secretKeyRef:
@@ -87,11 +92,7 @@ spec:
       #   #!/bin/sh
       #   set -x
       #   ls -al /etc/orka-ssh-pw
-      #   cat $SSH_PASSWORD
-      #   # VM_NAME=$(cat /tekton/results/vm-name)
-      #   # echo "Build script:"
-      #   # cat $VM_NAME
-      #   # echo "WOW" >> $(workspaces.orka.path)/wow.txt
+      #   cat $SSH_PASSFILE
       #   # tekton-orka
       #   # ls -al
       #   # cat /tekton/results/vm-name
@@ -100,5 +101,6 @@ spec:
     - name: ssh-creds
       secret:
         secretName: $(params.ssh-secret)
+        defaultMode: 0400
   workspaces:
     - name: orka

@@ -28,8 +28,6 @@ spec:
           value: catalina-buildtools-90G.img
         - name: ssh-username
           value: admin
-        - name: ssh-password
-          value: admin
         - name: script
           value: |
             cd AudioKit/iOS

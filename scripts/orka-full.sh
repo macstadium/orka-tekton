@@ -67,13 +67,28 @@ echo $VM_DETAILS
 VM_IP=$(echo $VM_DETAILS | jq -r '.ip')
 SSH_PORT=$(echo $VM_DETAILS | jq -r '.ssh_port')
 
-# Wait for SSH access
-SSH_FLAGS='-o StrictHostKeyChecking=no -o ConnectTimeout=10 -o LogLevel=ERROR'
+# Set SSH flags
+SSH_FLAGS='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10'
 TIMEOUT=10
+if [ "$SSH_KEY" = "true" ]; then
+  SSHPASS=""
+  SSH_FLAGS="-i $SSH_PASSFILE $SSH_FLAGS"
+else
+  SSHPASS="sshpass -f $SSH_PASSFILE"
+fi
+if [ "$VERBOSE" = "true" ]; then
+  RSYNC_FLAGS='-av --progress'
+  set -x
+else
+  SSH_FLAGS="$SSH_FLAGS -o LogLevel=ERROR"
+  RSYNC_FLAGS='-a'
+fi
+
+# Wait for SSH access
 set +e
 while :; do
   echo "Waiting for ssh access ..."
-  sshpass -f $SSH_PASSWORD ssh $SSH_FLAGS -p $SSH_PORT ${SSH_USERNAME}@${VM_IP} echo ok
+  $SSHPASS ssh $SSH_FLAGS -p $SSH_PORT ${SSH_USERNAME}@${VM_IP} echo ok
   RESULT=$?
   if [ $RESULT -eq 0 ]; then
     break
@@ -96,15 +111,9 @@ BUILD_SCRIPT=$(cat /tekton/results/build-script | head -1)
 
 # Copy build
 echo "Running script in VM ..."
-if [ "$VERBOSE" = "true" ]; then
-  RSYNC_FLAGS='-av --progress'
-  set -x
-else
-  RSYNC_FLAGS='-a'
-fi
-sshpass -f $SSH_PASSWORD rsync $RSYNC_FLAGS -e "ssh $SSH_FLAGS -p $SSH_PORT" /workspace ${SSH_USERNAME}@${VM_IP}:~
-sshpass -f $SSH_PASSWORD ssh $SSH_FLAGS -p $SSH_PORT ${SSH_USERNAME}@${VM_IP} "cd ~/workspace/orka && ~/workspace/${BUILD_SCRIPT}"
-sshpass -f $SSH_PASSWORD rsync $RSYNC_FLAGS -e "ssh $SSH_FLAGS -p $SSH_PORT" ${SSH_USERNAME}@${VM_IP}:~/workspace/orka /workspace
-# sshpass -p $SSH_PASSWORD scp $SSH_FLAGS -P $SSH_PORT -r /workspace ${SSH_USERNAME}@${VM_IP}:~
-# sshpass -p $SSH_PASSWORD ssh $SSH_FLAGS -p $SSH_PORT ${SSH_USERNAME}@${VM_IP} "cd ~/workspace/orka && ~/workspace/build"
-# sshpass -p $SSH_PASSWORD scp $SSH_FLAGS -P $SSH_PORT -r ${SSH_USERNAME}@${VM_IP}:~/workspace/orka /workspace
+$SSHPASS rsync $RSYNC_FLAGS -e "ssh $SSH_FLAGS -p $SSH_PORT" /workspace ${SSH_USERNAME}@${VM_IP}:~
+$SSHPASS ssh $SSH_FLAGS -p $SSH_PORT ${SSH_USERNAME}@${VM_IP} "cd ~/workspace/orka && ~/workspace/${BUILD_SCRIPT}"
+$SSHPASS rsync $RSYNC_FLAGS -e "ssh $SSH_FLAGS -p $SSH_PORT" ${SSH_USERNAME}@${VM_IP}:~/workspace/orka /workspace
+# sshpass -p $SSH_PASSFILE scp $SSH_FLAGS -P $SSH_PORT -r /workspace ${SSH_USERNAME}@${VM_IP}:~
+# sshpass -p $SSH_PASSFILE ssh $SSH_FLAGS -p $SSH_PORT ${SSH_USERNAME}@${VM_IP} "cd ~/workspace/orka && ~/workspace/${BUILD_SCRIPT}"
+# sshpass -p $SSH_PASSFILE scp $SSH_FLAGS -P $SSH_PORT -r ${SSH_USERNAME}@${VM_IP}:~/workspace/orka /workspace

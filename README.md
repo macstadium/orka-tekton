@@ -30,13 +30,17 @@ The Task relies on Orka credentials being stashed in a Kubernetes secret called 
 apiVersion: v1
 kind: Secret
 metadata:
-  name: tekton-orka-creds
+  name: orka-creds
 type: Opaque
 stringData:
-  email: tekton-svc@macstadium.com
-  password: p@ssw0rd
-  licenseKey: orka-license-key
+  email: $(email)
+  password: $(password)
+  licenseKey: $(orka-license-key)
 ```
+
+Create a secret from an ssh key:
+
+`kubectl create secret generic orka-ssh-key --from-file=id_rsa=<path>`
 
 ## Tekton Task Docker Image
 
