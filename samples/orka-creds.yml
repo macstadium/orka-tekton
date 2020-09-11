@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: tekton-orka-creds
+  name: orka-creds
 type: Opaque
 stringData:
   email: tekton-svc@macstadium.com

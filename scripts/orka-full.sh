@@ -73,7 +73,7 @@ TIMEOUT=10
 set +e
 while :; do
   echo "Waiting for ssh access ..."
-  sshpass -p $SSH_PASSWORD ssh $SSH_FLAGS -p $SSH_PORT ${SSH_USERNAME}@${VM_IP} echo ok
+  sshpass -f $SSH_PASSWORD ssh $SSH_FLAGS -p $SSH_PORT ${SSH_USERNAME}@${VM_IP} echo ok
   RESULT=$?
   if [ $RESULT -eq 0 ]; then
     break
@@ -91,12 +91,20 @@ while :; do
 done
 set -e
 
+# Get name of build script
+BUILD_SCRIPT=$(cat /tekton/results/build-script | head -1)
+
 # Copy build
 echo "Running script in VM ..."
-set -x
-sshpass -p $SSH_PASSWORD rsync -av --progress -e "ssh $SSH_FLAGS -p $SSH_PORT" /workspace ${SSH_USERNAME}@${VM_IP}:~
-sshpass -p $SSH_PASSWORD ssh $SSH_FLAGS -p $SSH_PORT ${SSH_USERNAME}@${VM_IP} "cd ~/workspace/orka && ~/workspace/build"
-sshpass -p $SSH_PASSWORD rsync -av --progress -e "ssh $SSH_FLAGS -p $SSH_PORT" ${SSH_USERNAME}@${VM_IP}:~/workspace/orka /workspace
+if [ "$VERBOSE" = "true" ]; then
+  RSYNC_FLAGS='-av --progress'
+  set -x
+else
+  RSYNC_FLAGS='-a'
+fi
+sshpass -f $SSH_PASSWORD rsync $RSYNC_FLAGS -e "ssh $SSH_FLAGS -p $SSH_PORT" /workspace ${SSH_USERNAME}@${VM_IP}:~
+sshpass -f $SSH_PASSWORD ssh $SSH_FLAGS -p $SSH_PORT ${SSH_USERNAME}@${VM_IP} "cd ~/workspace/orka && ~/workspace/${BUILD_SCRIPT}"
+sshpass -f $SSH_PASSWORD rsync $RSYNC_FLAGS -e "ssh $SSH_FLAGS -p $SSH_PORT" ${SSH_USERNAME}@${VM_IP}:~/workspace/orka /workspace
 # sshpass -p $SSH_PASSWORD scp $SSH_FLAGS -P $SSH_PORT -r /workspace ${SSH_USERNAME}@${VM_IP}:~
 # sshpass -p $SSH_PASSWORD ssh $SSH_FLAGS -p $SSH_PORT ${SSH_USERNAME}@${VM_IP} "cd ~/workspace/orka && ~/workspace/build"
 # sshpass -p $SSH_PASSWORD scp $SSH_FLAGS -P $SSH_PORT -r ${SSH_USERNAME}@${VM_IP}:~/workspace/orka /workspace

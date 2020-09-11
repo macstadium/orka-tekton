@@ -13,8 +13,6 @@ spec:
       value: catalina-ssh-30G.img
     - name: ssh-username
       value: admin
-    - name: ssh-password
-      value: admin
     - name: script
       value: |
         DISK_INFO=$(mktemp)
@@ -23,5 +21,3 @@ spec:
   workspaces:
     - name: orka
       emptyDir: {}
-      # persistentVolumeClaim:
-      #   claimName: tekton-orka-pvc

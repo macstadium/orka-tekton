@@ -9,5 +9,6 @@ RUN apk add \
   openssl \
   rsync \
   sshpass
-COPY scripts/task.sh /usr/local/bin/tekton-orka
-RUN chmod 755 /usr/local/bin/tekton-orka
+COPY scripts/orka-full.sh /usr/local/bin/orka-full
+COPY scripts/copy-script.sh /usr/local/bin/copy-script
+RUN chmod 755 /usr/local/bin/*

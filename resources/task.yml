@@ -10,13 +10,33 @@ spec:
       default: http://10.221.188.100
     - name: base-image
       type: string
-    - name: ssh-username
+    - name: verbose
       type: string
-    - name: ssh-password
-      type: string
+      default: "true"
     - name: script
       type: string
+    - name: orka-creds-secret
+      type: string
+      default: orka-creds
+    - name: orka-creds-email-key
+      type: string
+      default: email
+    - name: orka-creds-password-key
+      type: string
+      default: password
+    - name: orka-creds-license-key
+      type: string
+      default: licenseKey
+    - name: ssh-username
+      type: string
+    - name: ssh-secret
+      type: string
+      default: orka-ssh-pw
+    - name: ssh-secret-key
+      type: string
+      default: password
   results:
+    - name: build-script
     - name: vm-name
   steps:
     - name: copy-script
@@ -28,13 +48,7 @@ spec:
         cat > $SCRIPT << 'EOF'
         $(params.script)
         EOF
-        # If script does not start with shebang, prepend it
-        [[ ! $(head -c2 $SCRIPT) == \#! ]] && cat > build << EOF
-        #!/bin/sh
-        set -ex
-        EOF
-        cat $SCRIPT >> build
-        chmod 755 build
+        copy-script $SCRIPT
     - name: build
       image: sburtonmacstadium/tekton-orka
       env:
@@ -42,37 +56,49 @@ spec:
           value: $(params.orka-api-url)
         - name: BASE_IMAGE
           value: $(params.base-image)
+        - name: VERBOSE
+          value: $(params.verbose)
         - name: SSH_USERNAME
           value: $(params.ssh-username)
         - name: SSH_PASSWORD
-          value: $(params.ssh-password)
+          value: /etc/$(params.ssh-secret)/$(params.ssh-secret-key)
         - name: SVC_EMAIL
           valueFrom:
             secretKeyRef:
-              name: tekton-orka-creds
-              key: email
+              name: $(params.orka-creds-secret)
+              key: $(params.orka-creds-email-key)
         - name: SVC_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: tekton-orka-creds
-              key: password
+              name: $(params.orka-creds-secret)
+              key: $(params.orka-creds-password-key)
         - name: LICENSE_KEY
           valueFrom:
             secretKeyRef:
-              name: tekton-orka-creds
-              key: licenseKey
+              name: $(params.orka-creds-secret)
+              key: $(params.orka-creds-license-key)
+      volumeMounts:
+        - name: ssh-creds
+          readOnly: true
+          mountPath: /etc/$(params.ssh-secret)
       command:
-        - tekton-orka
+        - orka-full
       # script: |
       #   #!/bin/sh
-      #   # set -x
+      #   set -x
+      #   ls -al /etc/orka-ssh-pw
+      #   cat $SSH_PASSWORD
       #   # VM_NAME=$(cat /tekton/results/vm-name)
       #   # echo "Build script:"
       #   # cat $VM_NAME
       #   # echo "WOW" >> $(workspaces.orka.path)/wow.txt
-      #   tekton-orka
-      #   ls -al
+      #   # tekton-orka
+      #   # ls -al
       #   # cat /tekton/results/vm-name
-      #   ls -al $(workspaces.orka.path)
+      #   # ls -al $(workspaces.orka.path)
+  volumes:
+    - name: ssh-creds
+      secret:
+        secretName: $(params.ssh-secret)
   workspaces:
     - name: orka
