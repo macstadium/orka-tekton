@@ -19,6 +19,8 @@ spec:
       value: id_rsa
     - name: ssh-key
       value: "true"
+    - name: vnc-console
+      value: "false"
     - name: verbose
       value: "true"
     - name: copy-build

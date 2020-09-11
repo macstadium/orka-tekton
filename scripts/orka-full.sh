@@ -45,9 +45,9 @@ curl $CURL_FLAGS --request POST "${ORKA_API}/resources/vm/create" \
     \"orka_vm_name\": \"$VM_NAME\",
     \"orka_base_image\": \"$BASE_IMAGE\",
     \"orka_image\": \"$VM_NAME\",
-    \"orka_cpu_core\": 6,
-    \"vcpu_count\": 6,
-    \"vnc_console\": true
+    \"orka_cpu_core\": $CPU_COUNT,
+    \"vcpu_count\": $VCPU_COUNT,
+    \"vnc_console\": $VNC_CONSOLE
   }"
 echo -e "\nSuccessfully created VM config"
 echo $VM_NAME | tee /tekton/results/vm-name

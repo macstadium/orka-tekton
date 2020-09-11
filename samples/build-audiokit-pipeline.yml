@@ -26,6 +26,10 @@ spec:
           value: http://10.10.10.100
         - name: base-image
           value: catalina-buildtools-90G.img
+        - name: cpu-count
+          value: "6"
+        - name: vcpu-count
+          value: "6"
         - name: ssh-username
           value: admin
         - name: verbose

@@ -10,6 +10,15 @@ spec:
       default: http://10.221.188.100
     - name: base-image
       type: string
+    - name: cpu-count
+      type: string
+      default: "3"
+    - name: vcpu-count
+      type: string
+      default: "3"
+    - name: vnc-console
+      type: string
+      default: "true"
     - name: orka-creds-secret
       type: string
       default: orka-creds
@@ -32,6 +41,12 @@ spec:
           value: $(params.orka-api-url)
         - name: BASE_IMAGE
           value: $(params.base-image)
+        - name: CPU_COUNT
+          value: $(params.cpu-count)
+        - name: VCPU_COUNT
+          value: $(params.vcpu-count)
+        - name: VNC_CONSOLE
+          value: $(params.vnc-console)
         - name: SVC_EMAIL
           valueFrom:
             secretKeyRef:
