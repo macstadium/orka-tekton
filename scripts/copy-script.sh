@@ -1,5 +1,4 @@
 #!/bin/sh
-
 set -u
 
 SCRIPT=$1

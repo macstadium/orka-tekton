@@ -1,0 +1,62 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: orka-init
+spec:
+  params:
+    - name: orka-api-url
+      type: string
+      default: http://10.221.188.100
+    - name: base-image
+      type: string
+    - name: orka-creds-secret
+      type: string
+      default: orka-creds
+    - name: orka-creds-email-key
+      type: string
+      default: email
+    - name: orka-creds-password-key
+      type: string
+      default: password
+    - name: orka-creds-license-key
+      type: string
+      default: licenseKey
+  results:
+    - name: vm-name
+  steps:
+    - name: build
+      image: sburtonmacstadium/tekton-orka
+      env:
+        - name: ORKA_API
+          value: $(params.orka-api-url)
+        - name: BASE_IMAGE
+          value: $(params.base-image)
+        - name: SVC_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: $(params.orka-creds-secret)
+              key: $(params.orka-creds-email-key)
+        - name: SVC_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: $(params.orka-creds-secret)
+              key: $(params.orka-creds-password-key)
+        - name: LICENSE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: $(params.orka-creds-secret)
+              key: $(params.orka-creds-license-key)
+      command:
+        - orka-init
+      # script: |
+      #   #!/bin/sh
+      #   set -x
+      #   ls -al /etc/orka-ssh-pw
+      #   cat $SSH_PASSFILE
+      #   # tekton-orka
+      #   # ls -al
+      #   # cat /tekton/results/vm-name
+      #   # ls -al $(workspaces.orka.path)
+  workspaces:
+    - name: orka

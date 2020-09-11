@@ -52,7 +52,6 @@ curl $CURL_FLAGS --request POST "${ORKA_API}/resources/vm/create" \
 echo -e "\nSuccessfully created VM config"
 echo $VM_NAME | tee /tekton/results/vm-name
 
-
 # Deploy VM
 VM_DETAILS=$(curl $CURL_FLAGS --request POST "${ORKA_API}/resources/vm/deploy" \
   --header 'Content-Type: application/json' \

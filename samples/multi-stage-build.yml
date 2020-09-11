@@ -1,0 +1,40 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: multi-stage-build
+spec:
+  workspaces:
+    - name: shared-data
+  tasks:
+    - name: setup
+      taskRef:
+        name: orka-init
+      params:
+        - name: orka-api-url
+          value: http://10.10.10.100
+        - name: base-image
+          # value: catalina-buildtools-90G.img
+          value: catalina-ssh-30G.img
+      workspaces:
+        - name: orka
+          workspace: shared-data
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: run-multi-stage-build
+spec:
+  pipelineRef:
+    name: multi-stage-build
+  workspaces:
+    - name: shared-data
+      emptyDir: {}
+      # volumeClaimTemplate:
+      #   spec:
+      #     accessModes:
+      #       - ReadWriteOnce
+      #     resources:
+      #       requests:
+      #         storage: 1Gi
+      #     storageClassName: manual
