@@ -19,7 +19,7 @@ spec:
       workspaces:
         - name: orka
           workspace: shared-data
-    - name: deploy
+    - name: echo
       taskRef:
         name: orka-deploy
       params:
@@ -29,9 +29,44 @@ spec:
           value: $(tasks.setup.results.vm-name)
         - name: ssh-username
           value: admin
+        - name: copy-build
+          value: "false"
         - name: script
           value: |
             echo ok
+      workspaces:
+        - name: orka
+          workspace: shared-data
+    - name: ruby
+      taskRef:
+        name: orka-deploy
+      params:
+        - name: orka-api-url
+          value: http://10.10.10.100
+        - name: vm-name
+          value: $(tasks.setup.results.vm-name)
+        - name: ssh-username
+          value: admin
+        - name: copy-build
+          value: "false"
+        - name: script
+          value: |
+            #!/usr/bin/env ruby
+            puts "Hello macOS"
+      workspaces:
+        - name: orka
+          workspace: shared-data
+    - name: cleanup
+      runAfter:
+        - echo
+        - ruby
+      taskRef:
+        name: orka-teardown
+      params:
+        - name: orka-api-url
+          value: http://10.10.10.100
+        - name: vm-name
+          value: $(tasks.setup.results.vm-name)
       workspaces:
         - name: orka
           workspace: shared-data

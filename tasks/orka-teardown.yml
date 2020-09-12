@@ -1,0 +1,40 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: orka-teardown
+spec:
+  params:
+    - name: orka-api-url
+      type: string
+      default: http://10.221.188.100
+    - name: vm-name
+      type: string
+    - name: orka-token-secret
+      type: string
+      default: orka-token
+    - name: orka-token-secret-key
+      type: string
+      default: token
+  steps:
+    - name: teardown
+      image: sburtonmacstadium/tekton-orka
+      env:
+        - name: ORKA_API
+          value: $(params.orka-api-url)
+        - name: VM_NAME
+          value: $(params.vm-name)
+        - name: TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: $(params.orka-token-secret)
+              key: $(params.orka-token-secret-key)
+      # command:
+      #   - orka-full
+      script: |
+        #!/bin/sh
+        set -ex
+        orka-cleanup
+        kubectl delete secret orka-token --ignore-not-found
+  workspaces:
+    - name: orka

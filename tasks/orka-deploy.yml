@@ -79,8 +79,12 @@ spec:
       #   - orka-deploy
       script: |
         #!/bin/sh
-        set -ex
+        set -x
         orka-deploy
+        if [ $? -ne 0 ]; then
+          orka-cleanup
+          exit 1
+        fi
   volumes:
     - name: ssh-creds
       secret:

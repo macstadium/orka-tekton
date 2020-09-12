@@ -3,7 +3,7 @@ set -ex
 
 CURL_FLAGS='--location --fail'
 
-trap orka-cleanup EXIT
+# trap orka-cleanup EXIT
 
 # Deploy VM
 VM_DETAILS=$(curl $CURL_FLAGS --request POST "${ORKA_API}/resources/vm/deploy" \
