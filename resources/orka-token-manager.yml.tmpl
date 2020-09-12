@@ -23,7 +23,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: orka-svc
-  namespace: default
+  namespace: ${NAMESPACE}
 roleRef:
   kind: ClusterRole
   name: orka-token-manager
