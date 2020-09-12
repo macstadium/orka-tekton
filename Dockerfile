@@ -10,8 +10,9 @@ RUN apk add \
   rsync \
   sshpass
 RUN curl \
-  --output /usr/local/bin/kubectl \
-  --location https://storage.googleapis.com/kubernetes-release/release/v1.16.1/bin/linux/amd64/kubectl
+  --output /usr/bin/kubectl \
+  --location https://storage.googleapis.com/kubernetes-release/release/v1.16.1/bin/linux/amd64/kubectl \
+  && chmod 755 /usr/bin/kubectl
 COPY scripts/orka-full.sh /usr/local/bin/orka-full
 COPY scripts/orka-init.sh /usr/local/bin/orka-init
 COPY scripts/orka-deploy.sh /usr/local/bin/orka-deploy

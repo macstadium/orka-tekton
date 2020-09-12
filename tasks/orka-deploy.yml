@@ -37,7 +37,7 @@ spec:
       default: token
   results:
     - name: build-script
-    - name: vm-name
+    - name: succeeded
   steps:
     - name: copy-script
       image: sburtonmacstadium/tekton-orka
@@ -75,16 +75,17 @@ spec:
         - name: ssh-creds
           readOnly: true
           mountPath: /etc/$(params.ssh-secret)
-      # command:
-      #   - orka-deploy
       script: |
         #!/bin/sh
         set -x
         orka-deploy
         if [ $? -ne 0 ]; then
-          orka-cleanup
-          exit 1
+          SUCCESS="false"
+          echo "task failed!" >&2
+        else
+          SUCCESS="true"
         fi
+        echo $SUCCESS | tee /tekton/results/succeeded
   volumes:
     - name: ssh-creds
       secret:

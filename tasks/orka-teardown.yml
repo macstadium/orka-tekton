@@ -29,8 +29,6 @@ spec:
             secretKeyRef:
               name: $(params.orka-token-secret)
               key: $(params.orka-token-secret-key)
-      # command:
-      #   - orka-full
       script: |
         #!/bin/sh
         set -ex
