@@ -25,6 +25,7 @@ kind: PipelineRun
 metadata:
   name: run-multi-stage-build
 spec:
+  serviceAccountName: orka-svc
   pipelineRef:
     name: multi-stage-build
   workspaces:

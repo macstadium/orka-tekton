@@ -62,16 +62,15 @@ spec:
             secretKeyRef:
               name: $(params.orka-creds-secret)
               key: $(params.orka-creds-license-key)
-      command:
-        - orka-init
-      # script: |
-      #   #!/bin/sh
-      #   set -x
-      #   ls -al /etc/orka-ssh-pw
-      #   cat $SSH_PASSFILE
-      #   # tekton-orka
-      #   # ls -al
-      #   # cat /tekton/results/vm-name
-      #   # ls -al $(workspaces.orka.path)
+      script: |
+        #!/bin/sh
+        set -ex
+        orka-init
+        TOKEN=/etc/orka-token
+        if [ -f "$TOKEN" ]; then
+          kubectl delete secret orka-token --ignore-not-found
+          kubectl create secret generic orka-token \
+            --from-file=token=$TOKEN
+        fi
   workspaces:
     - name: orka

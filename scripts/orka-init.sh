@@ -1,5 +1,5 @@
 #!/bin/sh
-set -e
+set -ex
 
 CURL_FLAGS='--location --fail'
 
@@ -13,28 +13,16 @@ TOKEN=$(curl $CURL_FLAGS --connect-timeout 10 --request POST "${ORKA_API}/token"
   | jq -r '.token'
   )
 if [ -z "$TOKEN" ]; then
-  echo "Check Orka API endpoint: $ORKA_API"
+  echo "Check Orka API endpoint: $ORKA_API" >&2
   exit 1
 fi
 echo "Successfully fetched token"
+export TOKEN=$TOKEN
 
-function cleanup()
-{
-  set +x
-  curl $CURL_FLAGS --request DELETE "${ORKA_API}/resources/vm/purge" \
-    --header 'Content-Type: application/json' \
-    --header "Authorization: Bearer $TOKEN" \
-    --data-raw "{
-      \"orka_vm_name\": \"${VM_NAME}\"
-    }"
-  echo -e "\nPurged VM $VM_NAME"
+trap orka-cleanup EXIT
 
-  curl $CURL_FLAGS --request DELETE "${ORKA_API}/token" \
-    --header "Authorization: Bearer $TOKEN"
-  echo -e "\nDone."
-}
-
-trap cleanup EXIT
+echo $TOKEN > /etc/orka-token
+chmod 400 /etc/orka-token
 
 # Create VM config
 VM_NAME="tekton-$(openssl rand -hex 4)"
@@ -50,4 +38,6 @@ curl $CURL_FLAGS --request POST "${ORKA_API}/resources/vm/create" \
     \"vnc_console\": $VNC_CONSOLE
   }"
 echo -e "\nSuccessfully created VM config"
+export VM_NAME=$VM_NAME
+
 echo $VM_NAME | tee /tekton/results/vm-name
