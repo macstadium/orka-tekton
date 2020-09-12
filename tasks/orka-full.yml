@@ -41,9 +41,6 @@ spec:
     - name: orka-creds-password-key
       type: string
       default: password
-    - name: orka-creds-license-key
-      type: string
-      default: licenseKey
     - name: ssh-secret
       type: string
       default: orka-ssh-pw
@@ -97,11 +94,6 @@ spec:
             secretKeyRef:
               name: $(params.orka-creds-secret)
               key: $(params.orka-creds-password-key)
-        - name: LICENSE_KEY
-          valueFrom:
-            secretKeyRef:
-              name: $(params.orka-creds-secret)
-              key: $(params.orka-creds-license-key)
       volumeMounts:
         - name: ssh-creds
           readOnly: true

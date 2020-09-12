@@ -7,4 +7,3 @@ type: Opaque
 stringData:
   email: tekton-svc@macstadium.com
   password: p@ssw0rd
-  licenseKey: orka-license-key

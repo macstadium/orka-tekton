@@ -36,5 +36,3 @@ spec:
         set -ex
         orka-cleanup
         kubectl delete secret orka-token --ignore-not-found
-  workspaces:
-    - name: orka

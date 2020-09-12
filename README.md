@@ -35,7 +35,6 @@ type: Opaque
 stringData:
   email: $(email)
   password: $(password)
-  licenseKey: $(orka-license-key)
 ```
 
 Create a secret from an ssh key:

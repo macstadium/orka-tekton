@@ -73,5 +73,3 @@ spec:
           echo "fatal: token not found!"
           exit 1
         fi
-  workspaces:
-    - name: orka

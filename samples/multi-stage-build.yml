@@ -16,9 +16,6 @@ spec:
         - name: base-image
           # value: catalina-buildtools-90G.img
           value: catalina-ssh-30G.img
-      workspaces:
-        - name: orka
-          workspace: shared-data
     - name: echo
       taskRef:
         name: orka-deploy
@@ -67,9 +64,6 @@ spec:
           value: http://10.10.10.100
         - name: vm-name
           value: $(tasks.setup.results.vm-name)
-      workspaces:
-        - name: orka
-          workspace: shared-data
 ---
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
