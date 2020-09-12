@@ -20,8 +20,6 @@ spec:
         - name: orka
           workspace: shared-data
     - name: deploy
-      runAfter:
-        - setup
       taskRef:
         name: orka-deploy
       params:

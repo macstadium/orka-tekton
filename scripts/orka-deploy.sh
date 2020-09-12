@@ -1,12 +1,9 @@
 #!/bin/sh
 set -ex
 
-trap orka-cleanup EXIT
-
-echo $TOKEN
-echo $VM_NAME
-
 CURL_FLAGS='--location --fail'
+
+trap orka-cleanup EXIT
 
 # Deploy VM
 VM_DETAILS=$(curl $CURL_FLAGS --request POST "${ORKA_API}/resources/vm/deploy" \
@@ -17,8 +14,6 @@ VM_DETAILS=$(curl $CURL_FLAGS --request POST "${ORKA_API}/resources/vm/deploy" \
   }"
   )
 echo $VM_DETAILS
-
-exit 0
 
 # Extract SSH port and VM id from response
 VM_IP=$(echo $VM_DETAILS | jq -r '.ip')

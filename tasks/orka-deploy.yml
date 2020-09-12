@@ -39,16 +39,16 @@ spec:
     - name: build-script
     - name: vm-name
   steps:
-    # - name: copy-script
-    #   image: sburtonmacstadium/tekton-orka
-    #   script: |
-    #     #!/bin/sh
-    #     SCRIPT=$(mktemp)
-    #     # Safeguard against having to escape quotes / vars in script
-    #     cat > $SCRIPT << 'EOF'
-    #     $(params.script)
-    #     EOF
-    #     copy-script $SCRIPT
+    - name: copy-script
+      image: sburtonmacstadium/tekton-orka
+      script: |
+        #!/bin/sh
+        SCRIPT=$(mktemp)
+        # Safeguard against having to escape quotes / vars in script
+        cat > $SCRIPT << 'EOF'
+        $(params.script)
+        EOF
+        copy-script $SCRIPT
     - name: build
       image: sburtonmacstadium/tekton-orka
       env:
