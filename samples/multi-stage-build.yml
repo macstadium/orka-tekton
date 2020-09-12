@@ -19,6 +19,24 @@ spec:
       workspaces:
         - name: orka
           workspace: shared-data
+    - name: deploy
+      runAfter:
+        - setup
+      taskRef:
+        name: orka-deploy
+      params:
+        - name: orka-api-url
+          value: http://10.10.10.100
+        - name: vm-name
+          value: $(tasks.setup.results.vm-name)
+        - name: ssh-username
+          value: admin
+        - name: script
+          value: |
+            echo ok
+      workspaces:
+        - name: orka
+          workspace: shared-data
 ---
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun

@@ -28,17 +28,16 @@ spec:
     - name: orka-creds-password-key
       type: string
       default: password
-    - name: orka-creds-license-key
-      type: string
-      default: licenseKey
   results:
     - name: vm-name
   steps:
-    - name: build
+    - name: init
       image: sburtonmacstadium/tekton-orka
       env:
         - name: ORKA_API
           value: $(params.orka-api-url)
+        - name: ORKA_INIT
+          value: "true"
         - name: BASE_IMAGE
           value: $(params.base-image)
         - name: CPU_COUNT
@@ -57,20 +56,22 @@ spec:
             secretKeyRef:
               name: $(params.orka-creds-secret)
               key: $(params.orka-creds-password-key)
-        - name: LICENSE_KEY
-          valueFrom:
-            secretKeyRef:
-              name: $(params.orka-creds-secret)
-              key: $(params.orka-creds-license-key)
       script: |
         #!/bin/sh
-        set -ex
+        set -x
         orka-init
+        if [ $? -ne 0 ]; then
+          orka-cleanup
+          exit 1
+        fi
         TOKEN=/etc/orka-token
         if [ -f "$TOKEN" ]; then
           kubectl delete secret orka-token --ignore-not-found
           kubectl create secret generic orka-token \
             --from-file=token=$TOKEN
+        else
+          echo "fatal: token not found!"
+          exit 1
         fi
   workspaces:
     - name: orka

@@ -17,11 +17,10 @@ if [ -z "$TOKEN" ]; then
   exit 1
 fi
 echo "Successfully fetched token"
-export TOKEN=$TOKEN
 
-trap orka-cleanup EXIT
+# trap orka-cleanup EXIT
 
-echo $TOKEN > /etc/orka-token
+echo -n $TOKEN > /etc/orka-token
 chmod 400 /etc/orka-token
 
 # Create VM config
@@ -38,6 +37,4 @@ curl $CURL_FLAGS --request POST "${ORKA_API}/resources/vm/create" \
     \"vnc_console\": $VNC_CONSOLE
   }"
 echo -e "\nSuccessfully created VM config"
-export VM_NAME=$VM_NAME
-
-echo $VM_NAME | tee /tekton/results/vm-name
+echo -n $VM_NAME > /tekton/results/vm-name

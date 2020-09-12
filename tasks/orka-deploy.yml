@@ -1,0 +1,90 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: orka-deploy
+spec:
+  params:
+    - name: orka-api-url
+      type: string
+      default: http://10.221.188.100
+    - name: vm-name
+      type: string
+    - name: ssh-username
+      type: string
+    - name: script
+      type: string
+    - name: copy-build
+      type: string
+      default: "true"
+    - name: ssh-key
+      type: string
+      default: "false"
+    - name: verbose
+      type: string
+      default: "false"
+    - name: ssh-secret
+      type: string
+      default: orka-ssh-pw
+    - name: ssh-secret-key
+      type: string
+      default: password
+    - name: orka-token-secret
+      type: string
+      default: orka-token
+    - name: orka-token-secret-key
+      type: string
+      default: token
+  results:
+    - name: build-script
+    - name: vm-name
+  steps:
+    # - name: copy-script
+    #   image: sburtonmacstadium/tekton-orka
+    #   script: |
+    #     #!/bin/sh
+    #     SCRIPT=$(mktemp)
+    #     # Safeguard against having to escape quotes / vars in script
+    #     cat > $SCRIPT << 'EOF'
+    #     $(params.script)
+    #     EOF
+    #     copy-script $SCRIPT
+    - name: build
+      image: sburtonmacstadium/tekton-orka
+      env:
+        - name: ORKA_API
+          value: $(params.orka-api-url)
+        - name: VM_NAME
+          value: $(params.vm-name)
+        - name: VERBOSE
+          value: $(params.verbose)
+        - name: COPY_BUILD
+          value: $(params.copy-build)
+        - name: SSH_USERNAME
+          value: $(params.ssh-username)
+        - name: SSH_PASSFILE
+          value: /etc/$(params.ssh-secret)/$(params.ssh-secret-key)
+        - name: SSH_KEY
+          value: $(params.ssh-key)
+        - name: TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: $(params.orka-token-secret)
+              key: $(params.orka-token-secret-key)
+      volumeMounts:
+        - name: ssh-creds
+          readOnly: true
+          mountPath: /etc/$(params.ssh-secret)
+      # command:
+      #   - orka-deploy
+      script: |
+        #!/bin/sh
+        set -ex
+        orka-deploy
+  volumes:
+    - name: ssh-creds
+      secret:
+        secretName: $(params.ssh-secret)
+        defaultMode: 0400
+  workspaces:
+    - name: orka
