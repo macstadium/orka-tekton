@@ -2,7 +2,7 @@
 
 CURL_FLAGS='--location'
 
-if [ "$ORKA_INIT" = "true" ]; then
+if [ -f "/etc/orka-token" ]; then
   TOKEN=$(cat /etc/orka-token)
 fi
 
@@ -16,6 +16,8 @@ if [ -n "$VM_NAME" ]; then
   echo -e "\nPurged VM $VM_NAME"
 fi
 
-curl $CURL_FLAGS --request DELETE "${ORKA_API}/token" \
-  --header "Authorization: Bearer $TOKEN"
-echo -e "\nDone."
+if [ -n "$TOKEN" ]; then
+  curl $CURL_FLAGS --request DELETE "${ORKA_API}/token" \
+    --header "Authorization: Bearer $TOKEN"
+  echo -e "\nDone."
+fi

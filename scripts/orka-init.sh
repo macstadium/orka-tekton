@@ -18,8 +18,7 @@ if [ -z "$TOKEN" ]; then
 fi
 echo "Successfully fetched token"
 
-# trap orka-cleanup EXIT
-
+# Store token to create secret
 echo -n $TOKEN > /etc/orka-token
 chmod 400 /etc/orka-token
 

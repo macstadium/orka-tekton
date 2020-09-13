@@ -36,8 +36,6 @@ spec:
       env:
         - name: ORKA_API
           value: $(params.orka-api-url)
-        - name: ORKA_INIT
-          value: "true"
         - name: BASE_IMAGE
           value: $(params.base-image)
         - name: CPU_COUNT
