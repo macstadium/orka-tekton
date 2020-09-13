@@ -7,10 +7,11 @@ metadata:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: orka-token-manager
+  name: orka-runner
 rules:
   - apiGroups: [""]
     resources:
+      - configmaps
       - secrets
     verbs:
       - create
@@ -19,12 +20,12 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: orka-token-manager
+  name: orka-runner
 subjects:
 - kind: ServiceAccount
   name: orka-svc
   namespace: $(namespace)
 roleRef:
   kind: ClusterRole
-  name: orka-token-manager
+  name: orka-runner
   apiGroup: rbac.authorization.k8s.io

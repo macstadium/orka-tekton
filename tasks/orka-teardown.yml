@@ -8,29 +8,37 @@ spec:
     - name: orka-api-url
       type: string
       default: http://10.221.188.100
-    - name: vm-name
-      type: string
     - name: orka-token-secret
       type: string
       default: orka-token
     - name: orka-token-secret-key
       type: string
       default: token
+    - name: orka-vm-name-config
+      type: string
+      default: orka-vm-name
+    - name: orka-vm-name-config-key
+      type: string
+      default: vm-name
   steps:
     - name: teardown
       image: sburtonmacstadium/tekton-orka
       env:
         - name: ORKA_API
           value: $(params.orka-api-url)
-        - name: VM_NAME
-          value: $(params.vm-name)
         - name: TOKEN
           valueFrom:
             secretKeyRef:
               name: $(params.orka-token-secret)
               key: $(params.orka-token-secret-key)
+        - name: VM_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: $(params.orka-vm-name-config)
+              key: $(params.orka-vm-name-config-key)
       script: |
         #!/bin/sh
         set -ex
         orka-cleanup
-        kubectl delete secret orka-token --ignore-not-found
+        kubectl delete secret $(params.orka-token-secret) --ignore-not-found
+        kubectl delete configmap $(params.orka-vm-name-config) --ignore-not-found

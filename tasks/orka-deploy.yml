@@ -8,8 +8,6 @@ spec:
     - name: orka-api-url
       type: string
       default: http://10.221.188.100
-    - name: vm-name
-      type: string
     - name: ssh-username
       type: string
     - name: script
@@ -35,9 +33,14 @@ spec:
     - name: orka-token-secret-key
       type: string
       default: token
+    - name: orka-vm-name-config
+      type: string
+      default: orka-vm-name
+    - name: orka-vm-name-config-key
+      type: string
+      default: vm-name
   results:
     - name: build-script
-    - name: succeeded
   steps:
     - name: copy-script
       image: sburtonmacstadium/tekton-orka
@@ -54,8 +57,6 @@ spec:
       env:
         - name: ORKA_API
           value: $(params.orka-api-url)
-        - name: VM_NAME
-          value: $(params.vm-name)
         - name: VERBOSE
           value: $(params.verbose)
         - name: COPY_BUILD
@@ -71,6 +72,11 @@ spec:
             secretKeyRef:
               name: $(params.orka-token-secret)
               key: $(params.orka-token-secret-key)
+        - name: VM_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: $(params.orka-vm-name-config)
+              key: $(params.orka-vm-name-config-key)
       volumeMounts:
         - name: ssh-creds
           readOnly: true
@@ -79,13 +85,6 @@ spec:
         #!/bin/sh
         set -x
         orka-deploy
-        if [ $? -ne 0 ]; then
-          SUCCESS="false"
-          echo "task failed!" >&2
-        else
-          SUCCESS="true"
-        fi
-        echo $SUCCESS | tee /tekton/results/succeeded
   volumes:
     - name: ssh-creds
       secret:

@@ -3,7 +3,11 @@
 CURL_FLAGS='--location'
 
 if [ -f "/etc/orka-token" ]; then
-  TOKEN=$(cat /etc/orka-token)
+  TOKEN=$(cat /etc/orka-token | head -1)
+fi
+
+if [ -f "/etc/orka-vm-name" ]; then
+  VM_NAME=$(cat /etc/orka-vm-name | head -1)
 fi
 
 if [ -n "$VM_NAME" ]; then

@@ -36,4 +36,7 @@ curl $CURL_FLAGS --request POST "${ORKA_API}/resources/vm/create" \
     \"vnc_console\": $VNC_CONSOLE
   }"
 echo -e "\nSuccessfully created VM config"
-echo -n $VM_NAME > /tekton/results/vm-name
+
+# Store VM name to create config map
+echo -n $VM_NAME > /etc/orka-vm-name
+chmod 444 /etc/orka-vm-name
