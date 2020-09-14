@@ -1,27 +1,59 @@
-# Google Tekton integration for Orka
+# Run macOS builds with MacStadium Orka
 
-Tekton is a CI/CD tool made by Google which uses Kubernetes native resources to run pipeline jobs. The Tekton vocabulary introduces a few new Kubernetes resources, including:
+This set of `Tasks` can be used to utilize macOS build agents running on Tekton Pipelines with [Orka](https://www.macstadium.com/orka) by MacStadium.
 
-- `Task`
-- `TaskRun`
-- `Pipeline`
-- `PipelineRun`
-- `PipelineResource`
+An Orka cloud is required in order to use these `Tasks`.
 
-The smallest re-useable Tekton resource is the `Task`. A `Task` consists of multiple steps for a job. A single task is run using a Kubernetes pod, and each step in the task is run as a container in the pod using a specified image. Tasks can be assembled to run concurrently or in series in a `Pipeline`. In order to execute a task or pipeline, a `TaskRun` or `PipelineRun` resource can be applied.
+## Prerequisites
 
-This repository contains a prototype for an Orka / Tekton integration which uses the Orka API to create a virtual machine, copy a build script to the virtual machine, execute the build script, and copy the resulting build back to the Tekton cluster. This is accomplished with a Task that makes use of a Tekton feature called `workspaces` which allows the `TaskRun` or `PipelineRun` resource to specify a volume mount in which to store the build results. This could be a persistent volume mount in the cluster or an S3 bucket, for example.
+See the official documentation [here](https://orkadocs.macstadium.com/docs/quick-start-introduction) to get started.
 
-## Orka User Requirements
+As described in the above document, you will need to complete the following:
 
-- Orka service account set up (email / password)
-- License key
-- Base image with SSH enabled
-- Orka API endpoint
-  - http://10.10.10.100
-  - http://10.221.188.100
+- Locate your Orka API endpoint, available from your IP plan. This will typically be either `http://10.221.188.100` or `http://10.10.10.100`
+- Create an Orka service account using the CLI with `orka user create`, or by sending a POST request to `/users` with an email and password in the body
+  - **NOTE:** It is not necessary to manually obtain a token from the API
+- Create a VM base image with SSH enabled. See [here](https://orkadocs.macstadium.com/docs/creating-an-ssh-enabled-image) for more information
+  - Create Kubernetes secret with either SSH password or SSH private key
 
-### Orka Credentials
+## Installation
+
+To install all `Tasks` and the Orka configuration in the `default` namespace within your Kubernetes cluster, run the following command, substituting your Orka API endpoint:
+
+```sh
+ORKA_API=http://10.221.188.100 ./install.sh
+```
+
+You can specify a different namespace as follows:
+
+```sh
+NAMESPACE=tekton-orka ORKA_API=http://10.10.10.100 ./install.sh
+```
+
+To uninstall, simply run the script with the `-d` or `--delete` flag, being sure to specify the namespace if applicable:
+
+```sh
+NAMESPACE=tekton-orka ./install.sh --delete
+```
+
+Note that it is not necessary to specify the API endpoint to uninstall.
+
+## Usage
+
+There are two main ways to use the `Tasks`:
+
+- If you only need a single macOS build agent, use the `orka-full` task. See the `build-audiokit-pipeline` example for a pipeline that clones a git repository, passes it to the Orka build agent, and stores build artifacts on a persistent volume.
+- If you need to run multiple parallel build agents in a pipeline, use the three modular `Tasks`:
+
+    1. Set up an Orka job runner with the `orka-init` task
+    1. Deploy multiple VMs (either in parallel or in series) using the `orka-deploy` task
+    1. Clean up in the `finally` clause of the `Pipeline` using the `orka-teardown` task
+
+    See the `parallel-deploy` example for this approach.
+
+In order to use the modular approach, you will need to configure a Kubernetes service account to run the `Pipeline`. See the section below for more information.
+
+## Configuring Credentials
 
 The Task relies on Orka credentials being stashed in a Kubernetes secret called `tekton-orka-creds`. This secret should look something like the following:
 
@@ -33,37 +65,10 @@ metadata:
   name: orka-creds
 type: Opaque
 stringData:
-  email: $(email)
-  password: $(password)
+  email: tekton-svc@macstadium.com
+  password: p@ssw0rd
 ```
 
 Create a secret from an ssh key:
 
-`kubectl create secret generic orka-ssh-key --from-file=id_rsa=/path/to/id_rsa`
-
-## Tekton Task Docker Image
-
-The Orka Tekton Task uses a Docker image built from Alpine with minimal dependencies installed. It is fairly lightweight, at ~14.8MB.
-
-The image is packed with a shell script which communicates with the Orka API using curl. The build script is run in the VM over SSH using sshpass.
-
-## Tekton Task Workflow
-
-1. Get token
-1. Create VM config
-1. Deploy VM
-    - Store IP / SSH port in variables
-1. Wait for SSH access
-1. Copy build script
-1. Execute build script
-1. Copy build artifact
-1. Purge VM
-1. Revoke token
-
-## Links
-
-- https://medium.com/@dlorenc/tekton-on-mac-ed6ea72d1efb
-- https://github.com/tektoncd/pipeline/blob/master/docs/install.md
-- https://github.com/tektoncd/pipeline/blob/master/docs/container-contract.md
-- https://github.com/tektoncd/pipeline/blob/master/docs/tasks.md
-- https://github.com/tektoncd/pipeline/blob/master/docs/workspaces.md
+`kubectl create secret generic orka-ssh-key --from-file=id_rsa=/path/to/id_rsa --from-literal=username=<username>`
