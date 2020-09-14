@@ -22,8 +22,6 @@ spec:
       taskRef:
         name: orka-full
       params:
-        - name: orka-api-url
-          value: http://10.10.10.100
         - name: base-image
           value: catalina-buildtools-90G.img
         - name: cpu-count

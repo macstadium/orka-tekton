@@ -5,9 +5,6 @@ metadata:
   name: orka-full
 spec:
   params:
-    - name: orka-api-url
-      type: string
-      default: http://10.221.188.100
     - name: base-image
       type: string
     - name: cpu-count
@@ -62,7 +59,10 @@ spec:
       image: sburtonmacstadium/tekton-orka
       env:
         - name: ORKA_API
-          value: $(params.orka-api-url)
+          valueFrom:
+            configMapKeyRef:
+              name: orka-tekton-config
+              key: ORKA_API
         - name: BASE_IMAGE
           value: $(params.base-image)
         - name: CPU_COUNT
