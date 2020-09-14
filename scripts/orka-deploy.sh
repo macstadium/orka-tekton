@@ -1,9 +1,7 @@
 #!/bin/sh
-set -ex
+set -e
 
 CURL_FLAGS='--location --fail'
-
-# trap orka-cleanup EXIT
 
 # Deploy VM
 VM_DETAILS=$(curl $CURL_FLAGS --request POST "${ORKA_API}/resources/vm/deploy" \
@@ -15,9 +13,26 @@ VM_DETAILS=$(curl $CURL_FLAGS --request POST "${ORKA_API}/resources/vm/deploy" \
   )
 echo $VM_DETAILS
 
-# Extract SSH port and VM id from response
+# Extract SSH port and VM ip from response
 VM_IP=$(echo $VM_DETAILS | jq -r '.ip')
 SSH_PORT=$(echo $VM_DETAILS | jq -r '.ssh_port')
+
+function delete_vm() {
+  set +x
+  curl $CURL_FLAGS --request DELETE "${ORKA_API}/resources/vm/delete" \
+    --header 'Content-Type: application/json' \
+    --header "Authorization: Bearer $TOKEN" \
+    --data-raw "{
+      \"orka_vm_name\": \"${VM_ID}\"
+    }"
+  echo -e "\nDeleted VM $VM_ID"
+}
+
+if [ "$DELETE_VM" = "true" ]; then
+  # Get VM ID and delete VM by ID on exit
+  VM_ID=$(echo $VM_DETAILS | jq -r '.vm_id')
+  trap delete_vm EXIT
+fi
 
 # Set SSH flags
 SSH_FLAGS='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10'

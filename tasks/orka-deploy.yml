@@ -13,6 +13,9 @@ spec:
     - name: verbose
       type: string
       default: "false"
+    - name: delete-vm
+      type: string
+      default: "true"
     - name: ssh-key
       type: string
       default: "false"
@@ -58,6 +61,8 @@ spec:
               key: ORKA_API
         - name: VERBOSE
           value: $(params.verbose)
+        - name: DELETE_VM
+          value: $(params.delete-vm)
         - name: COPY_BUILD
           value: $(params.copy-build)
         - name: SSH_USERNAME

@@ -101,15 +101,6 @@ spec:
           mountPath: /etc/$(params.ssh-secret)
       command:
         - orka-full
-      # script: |
-      #   #!/bin/sh
-      #   set -x
-      #   ls -al /etc/orka-ssh-pw
-      #   cat $SSH_PASSFILE
-      #   # tekton-orka
-      #   # ls -al
-      #   # cat /tekton/results/vm-name
-      #   # ls -al $(workspaces.orka.path)
   volumes:
     - name: ssh-creds
       secret:

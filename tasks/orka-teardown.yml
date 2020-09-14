@@ -38,7 +38,7 @@ spec:
               key: $(params.orka-vm-name-config-key)
       script: |
         #!/bin/sh
-        set -ex
+        set -x
         orka-cleanup
         kubectl delete secret $(params.orka-token-secret) --ignore-not-found
         kubectl delete configmap $(params.orka-vm-name-config) --ignore-not-found

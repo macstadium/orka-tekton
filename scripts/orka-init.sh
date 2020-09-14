@@ -1,5 +1,4 @@
 #!/bin/sh
-set -ex
 
 CURL_FLAGS='--location --fail'
 
@@ -35,6 +34,10 @@ curl $CURL_FLAGS --request POST "${ORKA_API}/resources/vm/create" \
     \"vcpu_count\": $VCPU_COUNT,
     \"vnc_console\": $VNC_CONSOLE
   }"
+if [ $? -ne 0 ]; then
+  echo "Invalid VM configuration!" >&2
+  exit 1
+fi
 echo -e "\nSuccessfully created VM config"
 
 # Store VM name to create config map
