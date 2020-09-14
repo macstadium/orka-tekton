@@ -18,8 +18,6 @@ spec:
       taskRef:
         name: orka-deploy
       params:
-        - name: ssh-username
-          value: admin
         - name: copy-build
           value: "false"
         - name: script
@@ -33,8 +31,6 @@ spec:
       taskRef:
         name: orka-deploy
       params:
-        - name: ssh-username
-          value: admin
         - name: copy-build
           value: "false"
         - name: script

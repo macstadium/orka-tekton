@@ -5,8 +5,6 @@ metadata:
   name: orka-deploy
 spec:
   params:
-    - name: ssh-username
-      type: string
     - name: script
       type: string
     - name: copy-build
@@ -20,8 +18,11 @@ spec:
       default: "false"
     - name: ssh-secret
       type: string
-      default: orka-ssh-pw
-    - name: ssh-secret-key
+      default: orka-ssh-creds
+    - name: ssh-username-key
+      type: string
+      default: username
+    - name: ssh-password-key
       type: string
       default: password
     - name: orka-token-secret
@@ -60,9 +61,12 @@ spec:
         - name: COPY_BUILD
           value: $(params.copy-build)
         - name: SSH_USERNAME
-          value: $(params.ssh-username)
+          valueFrom:
+            secretKeyRef:
+              name: $(params.ssh-secret)
+              key: $(params.ssh-username-key)
         - name: SSH_PASSFILE
-          value: /etc/$(params.ssh-secret)/$(params.ssh-secret-key)
+          value: /etc/$(params.ssh-secret)/$(params.ssh-password-key)
         - name: SSH_KEY
           value: $(params.ssh-key)
         - name: TOKEN
@@ -87,6 +91,9 @@ spec:
     - name: ssh-creds
       secret:
         secretName: $(params.ssh-secret)
-        defaultMode: 0400
+        items:
+          - key: $(params.ssh-password-key)
+            path: $(params.ssh-password-key)
+            mode: 0400
   workspaces:
     - name: orka

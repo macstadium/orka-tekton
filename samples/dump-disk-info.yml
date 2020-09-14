@@ -9,8 +9,6 @@ spec:
   params:
     - name: base-image
       value: catalina-ssh-30G.img
-    - name: ssh-username
-      value: admin
     - name: script
       value: |
         DISK_INFO=$(mktemp)

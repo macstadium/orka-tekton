@@ -9,16 +9,12 @@ spec:
   params:
     - name: base-image
       value: catalina-ssh-key-30G.img
-    - name: ssh-username
-      value: admin
     - name: ssh-secret
       value: orka-ssh-key
-    - name: ssh-secret-key
+    - name: ssh-password-key
       value: id_rsa
     - name: ssh-key
       value: "true"
-    - name: vnc-console
-      value: "false"
     - name: verbose
       value: "true"
     - name: copy-build

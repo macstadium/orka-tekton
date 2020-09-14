@@ -28,8 +28,6 @@ spec:
           value: "6"
         - name: vcpu-count
           value: "6"
-        - name: ssh-username
-          value: admin
         - name: verbose
           value: "true"
         - name: script
