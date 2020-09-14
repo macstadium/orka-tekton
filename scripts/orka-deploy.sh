@@ -59,7 +59,7 @@ done
 set -e
 
 # Get name of build script
-BUILD_SCRIPT=$(cat /tekton/results/build-script | head -1)
+BUILD_SCRIPT=build-script
 
 # Run build script
 function build() {

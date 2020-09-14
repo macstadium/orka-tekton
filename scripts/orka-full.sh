@@ -50,7 +50,6 @@ curl $CURL_FLAGS --request POST "${ORKA_API}/resources/vm/create" \
     \"vnc_console\": $VNC_CONSOLE
   }"
 echo -e "\nSuccessfully created VM config"
-echo $VM_NAME | tee /tekton/results/vm-name
 
 # Deploy VM
 VM_DETAILS=$(curl $CURL_FLAGS --request POST "${ORKA_API}/resources/vm/deploy" \
@@ -106,7 +105,7 @@ done
 set -e
 
 # Get name of build script
-BUILD_SCRIPT=$(cat /tekton/results/build-script | head -1)
+BUILD_SCRIPT=build-script
 
 # Run build script
 function build() {
@@ -123,6 +122,3 @@ else
   $SSHPASS scp $SSH_FLAGS -P $SSH_PORT -r /workspace ${SSH_USERNAME}@${VM_IP}:~
   build
 fi
-# sshpass -p $SSH_PASSFILE scp $SSH_FLAGS -P $SSH_PORT -r /workspace ${SSH_USERNAME}@${VM_IP}:~
-# sshpass -p $SSH_PASSFILE ssh $SSH_FLAGS -p $SSH_PORT ${SSH_USERNAME}@${VM_IP} "cd ~/workspace/orka && ~/workspace/${BUILD_SCRIPT}"
-# sshpass -p $SSH_PASSFILE scp $SSH_FLAGS -P $SSH_PORT -r ${SSH_USERNAME}@${VM_IP}:~/workspace/orka /workspace

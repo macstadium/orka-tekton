@@ -15,10 +15,10 @@ spec:
     - name: copy-build
       type: string
       default: "true"
-    - name: ssh-key
+    - name: verbose
       type: string
       default: "false"
-    - name: verbose
+    - name: ssh-key
       type: string
       default: "false"
     - name: ssh-secret
@@ -39,8 +39,6 @@ spec:
     - name: orka-vm-name-config-key
       type: string
       default: vm-name
-  results:
-    - name: build-script
   steps:
     - name: copy-script
       image: sburtonmacstadium/tekton-orka
