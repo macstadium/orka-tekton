@@ -1,19 +1,18 @@
 #!/bin/bash
 
 : ${NAMESPACE:="default"}
-# : ${ACTION:="apply"}
 : ${ORKA_API:="http://10.221.188.100"}
 
 USAGE=$(cat <<EOF
 Usage:
-  NAMESPACE=<namespace> ORKA_API=<url> ./install [-a|-d|--apply|--delete]
+  NAMESPACE=<namespace> ORKA_API=<url> ./install.sh [-a|-d|--apply|--delete]
 Options:
   -a, --apply : Install all tasks and config map
   -d, --delete : Uninstall all tasks and config map
   --help : Display this message
 Environment:
-  NAMESPACE : defaults to "default"
-  ORKA_API : defaults to "http://10.221.188.100"
+  NAMESPACE : Kubernetes namespace. Defaults to "default"
+  ORKA_API : Orka API endpoint. Defaults to "http://10.221.188.100"
 EOF
 )
 
