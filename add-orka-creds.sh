@@ -4,7 +4,7 @@
 
 USAGE=$(cat <<EOF
 Usage:
-  NAMESPACE=<namespace> EMAIL=<email> PASSWORD=<password> ./add-service-account.sh [-a|-d|--apply|--delete]
+  NAMESPACE=<namespace> EMAIL=<email> PASSWORD=<password> ./add-orka-creds.sh [-a|-d|--apply|--delete]
 Options:
   -a, --apply : Install secret with Orka credentials.
   -d, --delete : Uninstall secret with Orka credentials.
