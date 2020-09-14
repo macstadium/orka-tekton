@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: multi-stage-build
+  name: parallel-deploy
 spec:
   workspaces:
     - name: shared-data
@@ -14,9 +14,9 @@ spec:
         - name: orka-api-url
           value: http://10.10.10.100
         - name: base-image
-          # value: catalina-buildtools-90G.img
           value: catalina-ssh-30G.img
-    - name: echo
+    - name: diskinfo
+      retries: 1
       taskRef:
         name: orka-deploy
       params:
@@ -28,11 +28,12 @@ spec:
           value: "false"
         - name: script
           value: |
-            echo ok
+            diskutil info /
       workspaces:
         - name: orka
           workspace: shared-data
     - name: ruby
+      retries: 1
       taskRef:
         name: orka-deploy
       params:
@@ -60,19 +61,11 @@ spec:
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: run-multi-stage-build
+  name: run-parallel-deploy
 spec:
   serviceAccountName: orka-svc
   pipelineRef:
-    name: multi-stage-build
+    name: parallel-deploy
   workspaces:
     - name: shared-data
       emptyDir: {}
-      # volumeClaimTemplate:
-      #   spec:
-      #     accessModes:
-      #       - ReadWriteOnce
-      #     resources:
-      #       requests:
-      #         storage: 1Gi
-      #     storageClassName: manual

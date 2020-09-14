@@ -68,12 +68,11 @@ spec:
     name: build-audiokit-pipeline
   workspaces:
     - name: shared-data
-      persistentVolumeClaim:
-        claimName: tekton-orka-pvc
-      # volumeClaimTemplate:
-      #   spec:
-      #     accessModes:
-      #     - ReadWriteOnce
-      #     resources:
-      #       requests:
-      #         storage: 1Gi
+      volumeClaimTemplate:
+        spec:
+          storageClassName: manual
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
