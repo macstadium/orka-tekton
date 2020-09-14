@@ -7,15 +7,23 @@ spec:
   params:
     - name: orka-token-secret
       type: string
+      description: |
+        The name of the secret holding the authentication token used to access the Orka API.
       default: orka-token
     - name: orka-token-secret-key
       type: string
+      description: |
+        The name of the key in the Orka token secret which holds the authentication token.
       default: token
     - name: orka-vm-name-config
       type: string
+      description: |
+        The name of the config map which stores the name of the generated VM configuration.
       default: orka-vm-name
     - name: orka-vm-name-config-key
       type: string
+      description: |
+        The name of the key in the VM name config map which stores the name of the generated VM configuration.
       default: vm-name
   steps:
     - name: teardown
