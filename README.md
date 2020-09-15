@@ -151,7 +151,7 @@ The service account and related resources can be removed by running the script w
 
 ### Running Without A Service Account
 
-If desired, you can run the `orka-deploy` task in a `Pipeline` by obtaining a token from the Orka API using the `/token` endpoint and supplying your own VM config:
+If desired, you can run the `orka-deploy` task in a `Pipeline` by obtaining a token from the Orka API using the `/token` endpoint and supplying an already existing VM config:
 
 ```yaml
 # Token below is generic and copied from https://jwt.io/
