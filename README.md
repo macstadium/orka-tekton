@@ -64,7 +64,7 @@ There are two main ways to use the `Tasks`:
 
     See the [`parallel-deploy`](samples/parallel-deploy.yml) example for this approach.
 
-In order to use the modular approach, you will need to configure a Kubernetes service account to run the `Pipeline`. See the section below for more information.
+In order to use the modular approach, you will need to configure a Kubernetes service account to run the `Pipeline`. See [the section below](#Configuring-A-Kubernetes-Service-Account) for more information.
 
 ## Configuring Credentials
 
