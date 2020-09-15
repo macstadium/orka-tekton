@@ -4,7 +4,7 @@
 
 USAGE=$(cat <<EOF
 Usage:
-  NAMESPACE=<namespace> SSH_USERNAME=<email> SSH_PASSWORD=<password> ./add-service-account.sh [-a|-d|--apply|--delete]
+  NAMESPACE=<namespace> SSH_USERNAME=<username> SSH_PASSWORD=<password> ./add-ssh-creds.sh [-a|-d|--apply|--delete]
 Options:
   -a, --apply : Install secret with VM SSH credentials.
   -d, --delete : Uninstall secret with VM SSH credentials.

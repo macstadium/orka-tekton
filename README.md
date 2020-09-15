@@ -8,7 +8,7 @@ An Orka cloud is required in order to use these `Tasks`.
 
 See the official documentation [here](https://orkadocs.macstadium.com/docs/quick-start-introduction) to get started.
 
-As described in the above document, you will need to complete the following:
+As described in the above document, you will need the following:
 
 - Locate your Orka API endpoint, available from your IP plan. This will typically be either `http://10.221.188.100` or `http://10.10.10.100`
 - Create an Orka service account using the CLI with `orka user create`, or by sending a POST request to `/users` with an email and password in the body
@@ -55,7 +55,7 @@ In order to use the modular approach, you will need to configure a Kubernetes se
 
 ## Configuring Credentials
 
-The Task relies on Orka credentials being stashed in a Kubernetes secret called `tekton-orka-creds`. This secret should look something like the following:
+You will need to create Kubernetes secrets to store both the Orka credentials as well as the VM SSH credentials. Refer to the following example:
 
 ```yaml
 ---
@@ -67,8 +67,84 @@ type: Opaque
 stringData:
   email: tekton-svc@macstadium.com
   password: p@ssw0rd
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: orka-ssh-creds
+type: Opaque
+stringData:
+  username: admin
+  password: admin
 ```
 
-Create a secret from an ssh key:
+You can also generate these secrets using the provided scripts:
 
-`kubectl create secret generic orka-ssh-key --from-file=id_rsa=/path/to/id_rsa --from-literal=username=<username>`
+```sh
+EMAIL=<email> PASSWORD=<password> ./add-orka-creds.sh --apply
+SSH_USERNAME=<username> SSH_PASSWORD=<password> ./add-ssh-creds.sh --apply
+```
+
+Similar to the install script, you can also provide the `NAMESPACE` if desired and uninstall with the `-d` or `--delete` flag. Note that it is only necessary to provide the `NAMESPACE` when uninstalling, if initially provided.
+
+### Using an SSH key
+
+If you choose to use an SSH key to connect to the VM, first copy the public key to the VM and commit the base image. Then, store the username and private key in a Kubernetes secret:
+
+```sh
+kubectl create secret generic orka-ssh-key --from-file=id_rsa=/path/to/id_rsa --from-literal=username=<username>
+```
+
+See the `use-ssh-key` example for more information.
+
+### A Note About Credentials
+
+The Orka `Tasks` will expect the Orka credentials to be stored in a secret called `orka-creds` with keys of `username` and `password`. However, this is not set in stone; the `Task` parameters can be configured to use any names you wish. These defaults are provided for convenience.
+
+Similar, the SSH credentials are expected to be stored in a secret called `orka-ssh-creds` with keys of `username` and `password`. These can also be customized using `Task` parameters.
+
+## Configuring A Kubernetes Service Account
+
+In order to use the `orka-init` and `orka-teardown` tasks, you will need to configure a Kubernetes service account along with a cluster role and cluster role binding as follows:
+
+```yaml
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: orka-svc
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: orka-runner
+rules:
+  - apiGroups: [""]
+    resources:
+      - configmaps
+      - secrets
+    verbs:
+      - create
+      - delete
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: orka-runner
+subjects:
+- kind: ServiceAccount
+  name: orka-svc
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: orka-runner
+  apiGroup: rbac.authorization.k8s.io
+```
+
+For the sake of convenience this can be accomplished by running the `add-service-account.sh` script:
+
+```sh
+NAMESPACE=<namespace> ./add-service-account.sh --apply
+```
+
+The service account and related resources can be removed by running the same script with the `-d` or `--delete` flag, specifying the `NAMESPACE` variable if applicable.
