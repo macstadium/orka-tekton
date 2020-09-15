@@ -4,6 +4,18 @@ This set of `Tasks` can be used to utilize macOS build agents running on Tekton 
 
 An Orka cloud is required in order to use these `Tasks`.
 
+- [Prerequisites](#Prerequisites)
+- [Installation](#Installation)
+- [Usage](#Usage)
+- [Configuring Credentials](#Configuring-Credentials)
+  - [Using an SSH key](#Using-an-SSH-key)
+  - [A Note About Credentials](#A-Note-About-Credentials)
+- [Configuring A Kubernetes Service Account](#Configuring-A-Kubernetes-Service-Account)
+  - [Running Without A Service Account](#Running-Without-A-Service-Account)
+- [Task Parameter Reference](#Task-Parameter-Reference)
+  - [Common Parameters](#Common-Parameters)
+  - [Configuring Secrets and Config Maps](#Configuring-Secrets-and-Config-Maps)
+
 ## Prerequisites
 
 See the official documentation [here](https://orkadocs.macstadium.com/docs/quick-start-introduction) to get started.
