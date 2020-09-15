@@ -60,7 +60,7 @@ There are two main ways to use the `Tasks`:
     1. Deploy multiple VMs (either in parallel or in series) using the `orka-deploy` task
     1. Clean up in the `finally` clause of the `Pipeline` using the `orka-teardown` task
 
-    See the `parallel-deploy` example for this approach.
+    See the [`parallel-deploy`](samples/parallel-deploy.yml) example for this approach.
 
 In order to use the modular approach, you will need to configure a Kubernetes service account to run the `Pipeline`. See the section below for more information.
 
@@ -96,21 +96,21 @@ EMAIL=<email> PASSWORD=<password> ./add-orka-creds.sh --apply
 SSH_USERNAME=<username> SSH_PASSWORD=<password> ./add-ssh-creds.sh --apply
 ```
 
-Similar to the install script, you can also provide the `NAMESPACE` if desired and uninstall with the `-d` or `--delete` flag. Note that it is only necessary to provide the `NAMESPACE` when uninstalling, if initially provided.
+Similar to the install script, you can also provide the `NAMESPACE` if desired and uninstall with the `-d` or `--delete` flag. Note that only the `NAMESPACE` variable is required when uninstalling, if initially provided.
 
 ### Using an SSH key
 
-If you choose to use an SSH key to connect to the VM, first copy the public key to the VM and commit the base image. Then, store the username and private key in a Kubernetes secret:
+If using an SSH key to connect to the VM, first copy the public key to the VM and commit the base image. Then, store the username and private key in a Kubernetes secret:
 
 ```sh
 kubectl create secret generic orka-ssh-key --from-file=id_rsa=/path/to/id_rsa --from-literal=username=<username>
 ```
 
-See the `use-ssh-key` example for more information.
+See the [`use-ssh-key`](samples/use-ssh-key.yml) example for more information.
 
 ### A Note About Credentials
 
-The Orka `Tasks` will expect the Orka credentials to be stored in a secret called `orka-creds` with keys of `username` and `password`. However, this is not set in stone; the `Task` parameters can be configured to use any names you wish. These defaults are provided for convenience.
+The Orka `Tasks` will expect the Orka credentials to be stored in a secret called `orka-creds` with keys of `email` and `password`. However, this is not set in stone; the `Task` parameters can be configured to use any names you wish. These defaults are provided for convenience.
 
 Similarly, the SSH credentials are expected to be stored in a secret called `orka-ssh-creds` with keys of `username` and `password`. These can also be customized using `Task` parameters.
 
@@ -186,7 +186,7 @@ data:
 
 By default, the `orka-deploy` task expects there to be a secret called `orka-token` with a key of `token` and a config map called `orka-vm-name` with a key of `vm-name`. These values can be customized with `Task` parameters.
 
-See the `custom-deploy` example for more information. Note that you will still need to supply VM SSH credentials, although the Orka credentials are not necessary in this scenario.
+See the [`custom-deploy`](samples/custom-deploy.yml) example for more information. Note that you will still need to supply VM SSH credentials, although the Orka credentials are not necessary in this scenario.
 
 ## Task Parameter Reference
 
