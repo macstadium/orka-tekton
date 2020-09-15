@@ -101,7 +101,7 @@ See the `use-ssh-key` example for more information.
 
 The Orka `Tasks` will expect the Orka credentials to be stored in a secret called `orka-creds` with keys of `username` and `password`. However, this is not set in stone; the `Task` parameters can be configured to use any names you wish. These defaults are provided for convenience.
 
-Similar, the SSH credentials are expected to be stored in a secret called `orka-ssh-creds` with keys of `username` and `password`. These can also be customized using `Task` parameters.
+Similarly, the SSH credentials are expected to be stored in a secret called `orka-ssh-creds` with keys of `username` and `password`. These can also be customized using `Task` parameters.
 
 ## Configuring A Kubernetes Service Account
 
@@ -191,7 +191,7 @@ See the `custom-deploy` example for more information. Note that you will still n
 | `copy-build` | Specifies whether to copy build artifacts from VM back to workspace. Disable when there is no need to copy build artifacts, e.g when running tests or linting code. | true |
 | `verbose` | Enables verbose logging for all connection activity to VM. | false |
 | `ssh-key` | Specifies whether the SSH credentials secret contains an SSH key, as opposed to a password. | false |
-| `delete-vm` | Specifies whether to delete the VM after use when run in a pipeline. This can be useful to discard build agents as soon as they are no longer needed, to free up resources Set to false if you intend to manually clean up VMs after use. Applicable *only* to `delete-vm` task. | true |
+| `delete-vm` | Specifies whether to delete the VM after use when run in a pipeline. This can be useful to discard build agents as soon as they are no longer needed, to free up resources. Set to false if you intend to manually clean up VMs after use. Applicable *only* to the `orka-deploy` task. | true |
 
 ### Configuring Secrets and Config Maps
 
