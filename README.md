@@ -23,23 +23,22 @@ See the official documentation [here](https://orkadocs.macstadium.com/docs/quick
 As described in the above document, you will need the following:
 
 - Locate your Orka API endpoint, available from your IP plan. This will typically be either `http://10.221.188.100` or `http://10.10.10.100`
-- Create an Orka service account using the CLI with `orka user create`, or by sending a POST request to `/users` with an email and password in the body
+- Create an Orka service account using the CLI with `orka user create`, or by sending a `POST` request to `/users` with an email and password in the body
   - **NOTE:** It is not necessary to manually obtain a token from the API
 - Create a VM base image with SSH enabled. See [here](https://orkadocs.macstadium.com/docs/creating-an-ssh-enabled-image) for more information
-  - Create Kubernetes secret with either SSH password or SSH private key
 
 ## Installation
 
 To install all `Tasks` and the Orka configuration in the `default` namespace within your Kubernetes cluster, run the following command, substituting your Orka API endpoint:
 
 ```sh
-ORKA_API=http://10.221.188.100 ./install.sh
+ORKA_API=http://10.221.188.100 ./install.sh --apply
 ```
 
 You can specify a different namespace as follows:
 
 ```sh
-NAMESPACE=tekton-orka ORKA_API=http://10.10.10.100 ./install.sh
+NAMESPACE=tekton-orka ORKA_API=http://10.10.10.100 ./install.sh --apply
 ```
 
 To uninstall, simply run the script with the `-d` or `--delete` flag, being sure to specify the namespace if applicable:
@@ -54,7 +53,7 @@ Note that it is not necessary to specify the API endpoint to uninstall.
 
 There are two main ways to use the `Tasks`:
 
-- If you only need a single macOS build agent, use the `orka-full` task. See the `build-audiokit-pipeline` example for a pipeline that clones a git repository, passes it to the Orka build agent, and stores build artifacts on a persistent volume.
+- If you only need a single macOS build agent, use the `orka-full` task. See the [`build-audiokit-pipeline`](samples/build-audiokit-pipeline.yml) example for a pipeline that clones a git repository, passes it to the Orka build agent, and stores build artifacts on a persistent volume.
 - If you need to run multiple parallel build agents in a pipeline, use the three modular `Tasks`:
 
     1. Set up an Orka job runner with the `orka-init` task
