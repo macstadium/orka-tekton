@@ -1,5 +1,7 @@
 # Run macOS builds with MacStadium Orka
 
+**Please Note: These Tasks are only compatible with Tekton Pipelines v0.16.0 or greater!**
+
 This set of `Tasks` can be used to utilize macOS build agents running on Tekton Pipelines with [Orka](https://www.macstadium.com/orka) by MacStadium.
 
 An Orka cloud is required in order to use these `Tasks`.
