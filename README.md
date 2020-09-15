@@ -147,4 +147,34 @@ For the sake of convenience this can be accomplished by running the `add-service
 NAMESPACE=<namespace> ./add-service-account.sh --apply
 ```
 
-The service account and related resources can be removed by running the same script with the `-d` or `--delete` flag, specifying the `NAMESPACE` variable if applicable.
+The service account and related resources can be removed by running the script with the `-d` or `--delete` flag, specifying the `NAMESPACE` variable if applicable.
+
+### Running Without A Service Account
+
+If desired, you can run the `orka-deploy` task in a `Pipeline` by obtaining a token from the Orka API using the `/token` endpoint and supplying your own VM config:
+
+```yaml
+# Token below is generic and copied from https://jwt.io/
+# Replace generic token with token obtained from Orka API
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: orka-token
+type: Opaque
+stringData:
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: orka-vm-name
+data:
+  vm-name: build-tools
+```
+
+By default, the `orka-deploy` task expects there to be a secret called `orka-token` with a key of `token` and a config map called `orka-vm-name` with a key of `vm-name`. These values can be customized with `Task` parameters.
+
+See the `custom-deploy` example for more information. Note that you will still need to supply VM SSH credentials, although the Orka credentials are not necessary in this scenario.
+
+## Task Parameter Reference

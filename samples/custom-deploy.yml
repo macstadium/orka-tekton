@@ -1,0 +1,38 @@
+# Token below is generic and copied from https://jwt.io/
+# Replace generic token with token obtained from Orka API
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: custom-orka-token
+type: Opaque
+stringData:
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: custom-orka-vm-name
+data:
+  vm-name: build-tools
+---
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  name: custom-deploy
+spec:
+  taskRef:
+    name: orka-deploy
+  params:
+    - name: orka-token-secret
+      value: custom-orka-token
+    - name: orka-vm-name-config
+      value: custom-orka-vm-name
+    - name: verbose
+      value: "true"
+    - name: script
+      value: |
+        xcodebuild -version -sdk
+  workspaces:
+    - name: orka
+      emptyDir: {}
