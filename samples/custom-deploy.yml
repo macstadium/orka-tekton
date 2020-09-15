@@ -1,5 +1,22 @@
+# ###
+# This TaskRun demonstrates how to use the orka-deploy Task in solo.
+# This can be used instead of running the orka-init and orka-cleanup Tasks
+# which require creating a Kubernetes service account.
+#
+# In order to use the orka-deploy Task in this way, you will need to first
+# fetch an authentication token from the Orka API by sending a request to /token
+# Copy the token from the response body and create a secret as shown below.
+#
+# You will also need to supply the name of an already existing VM config
+# in a config map as demonstrated below.
+#
+# See the Task reference in the README for more information on passing secret
+# and config maps to the Task.
+#
+# ###
 # Token below is generic and copied from https://jwt.io/
 # Replace generic token with token obtained from Orka API
+# ###
 ---
 apiVersion: v1
 kind: Secret

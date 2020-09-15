@@ -1,3 +1,11 @@
+# ###
+# This example shows how to deploy multiple Orka VMs in a Pipeline.
+# In this scenario, the VMs will be run in parallel and run two different jobs.
+#
+# The orka-init and orka-teardown Tasks require a Kubernetes service account with
+# permission to create / delete secrets and config maps. See the README for more
+# information.
+# ###
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
