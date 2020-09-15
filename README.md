@@ -178,3 +178,32 @@ By default, the `orka-deploy` task expects there to be a secret called `orka-tok
 See the `custom-deploy` example for more information. Note that you will still need to supply VM SSH credentials, although the Orka credentials are not necessary in this scenario.
 
 ## Task Parameter Reference
+
+### Common Parameters
+
+| Parameter | Description | Default |
+| --- | --- | ---: |
+| `base-image` | The Orka base image to use for the VM config. | --- |
+| `cpu-count` | The number of CPU cores to dedicate for the VM. Must be 3, 4, 6, 8, 12, or 24. | 3 |
+| `vcpu-count` | The number of vCPUs for the VM. Must equal the number of CPUs, when CPU is less than or equal to 3. Otherwise, must equal half of or exactly the number of CPUs specified. | 3 |
+| `vnc-console` | Enables or disables VNC for the VM configuration. | false |
+| `script` | The script to run inside of the VM. The script will be prepended with `#!/bin/sh` and `set -ex` if no shebang is present. You may supply your own shebang instead, e.g. to run a script with the shell of your choice, or a scripting language like Python or Ruby. | --- |
+| `copy-build` | Specifies whether to copy build artifacts from VM back to workspace. Disable when there is no need to copy build artifacts, e.g when running tests or linting code. | true |
+| `verbose` | Enables verbose logging for all connection activity to VM. | false |
+| `ssh-key` | Specifies whether the SSH credentials secret contains an SSH key, as opposed to a password. | false |
+| `delete-vm` | Specifies whether to delete the VM after use when run in a pipeline. This can be useful to discard build agents as soon as they are no longer needed, to free up resources Set to false if you intend to manually clean up VMs after use. Applicable *only* to `delete-vm` task. | true |
+
+### Configuring Secrets and Config Maps
+
+| Parameter | Description | Default |
+| --- | --- | ---: |
+| `orka-creds-secret` | The name of the secret holding your Orka credentials. | orka-creds |
+| `orka-creds-email-key` | The name of the key in the Orka credentials secret for the email address associated with the service account. | email |
+| `orka-creds-password-key` | The name of the key in the Orka credentials secret for the password associated with the service account. | password |
+| `ssh-secret` | The name of the secret holding your VM SSH credentials. | orka-ssh-creds |
+| `ssh-username-key` | The name of the key in the VM SSH credentials secret for the username associated with the macOS VM. | username |
+| `ssh-password-key` | The name of the key in the VM SSH credentials secret for the password associated with the macOS VM. If ssh-key is true, this parameter should specify the name of the key in the VM SSH credentials secret that holds the private SSH key. | password |
+| `orka-token-secret` | The name of the secret holding the authentication token used to access the Orka API. Applicable to `orka-init` / `orka-deploy` / `orka-teardown`. | orka-token |
+| `orka-token-secret-key` | The name of the key in the Orka token secret which holds the authentication token. Applicable to `orka-init` / `orka-deploy` / `orka-teardown`. | token |
+| `orka-vm-name-config` | The name of the config map which stores the name of the generated VM configuration. Applicable to `orka-init` / `orka-deploy` / `orka-teardown`. | orka-vm-name |
+| `orka-vm-name-config-key` | The name of the key in the VM name config map which stores the name of the generated VM configuration. Applicable to `orka-init` / `orka-deploy` / `orka-teardown`. | vm-name |
