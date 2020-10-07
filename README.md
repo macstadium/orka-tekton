@@ -1,14 +1,18 @@
 # Run macOS builds with MacStadium Orka
 
-**Please Note: These Tasks are only compatible with Tekton Pipelines v0.16.0 or greater!**
+**IMPORTANT: These `Tasks` are compatible with Tekton Pipelines v0.16.0 or later.**
 
-This set of `Tasks` can be used to utilize macOS build agents running on Tekton Pipelines with [Orka](https://www.macstadium.com/orka) by MacStadium.
+**IMPORTANT: You need an Orka envrionment to run these `Tasks`.**
 
-An Orka cloud is required in order to use these `Tasks`.
+This set of `Tasks` lets Tekton utilize macOS build agents running on [Orka](https://www.macstadium.com/orka) by MacStadium.
 
 - [Prerequisites](#Prerequisites)
 - [Installation](#Installation)
+  - [Default namespace installation](#default-namespace-installation)
+  - [Custom namespace installation](#custom-namespace-installation)
 - [Usage](#Usage)
+  - [Single macOS build agent](#single-macos-build-agent)
+  - [Multiple macOS build agents](#multiple-macos-build-agents)
 - [Configuring Credentials](#Configuring-Credentials)
   - [Using an SSH key](#Using-an-SSH-key)
   - [A Note About Credentials](#A-Note-About-Credentials)
@@ -19,51 +23,69 @@ An Orka cloud is required in order to use these `Tasks`.
 
 ## Prerequisites
 
-See the official documentation [here](https://orkadocs.macstadium.com/docs/quick-start-introduction) to get started.
+* You need a Kubernetes cluster with Tekton Pipelines v0.16.0 or later configured.
+* You need an Orka environment with the following components:
+  * Orka API endpoint (IP or custom domain). Usually, `http://10.221.188.100`, `http://10.10.10.100` or `https://<custom-domain>`.
+  * Dedicated Orka user with valid credentials (email & password). Create a new user or request one from your Orka administrator.
+  * SSH-enabled base image and the respective SSH credentials (email & password OR SSH key). Use an existing base image or create your own. 
+* You need an active VPN connection between your Kubernetes cluster and Orka. Use a VPN client for a temporary connection or create a site-to-site VPN tunnel for permanent access.
 
-As described in the above document, you will need the following:
-
-- Locate your Orka API endpoint, available from your IP plan. This will typically be either `http://10.221.188.100` or `http://10.10.10.100`
-- Create an Orka service account using the CLI with `orka user create`, or by sending a `POST` request to `/users` with an email and password in the body
-  - **NOTE:** It is not necessary to manually obtain a token from the API
-- Create a VM base image with SSH enabled. See [here](https://orkadocs.macstadium.com/docs/creating-an-ssh-enabled-image) for more information
+See also: [Using Orka, At a Glance](https://orkadocs.macstadium.com/docs/quick-start-introduction)
 
 ## Installation
 
-To install all `Tasks` and the Orka configuration in the `default` namespace within your Kubernetes cluster, run the following command, substituting your Orka API endpoint:
+### Default namespace installation
+
+To install all `Tasks` and the Orka configuration in the `default` namespace within your Kubernetes cluster, run the following command against your actual Orka API endpoint.
 
 ```sh
 ORKA_API=http://10.221.188.100 ./install.sh --apply
 ```
 
-You can specify a different namespace as follows:
+To uninstall from the `default` namespace, run the script with the `-d` or `--delete` flag:
 
 ```sh
-NAMESPACE=tekton-orka ORKA_API=http://10.10.10.100 ./install.sh --apply
+./install.sh --delete
 ```
 
-To uninstall, simply run the script with the `-d` or `--delete` flag, being sure to specify the namespace if applicable:
+### Custom namespace installation
+
+To specify a custom namespace during installation, run the following command against your preferred namespace and your actual Orka API endpoint:
+
+```sh
+NAMESPACE=tekton-orka ORKA_API=http://10.221.188.100 ./install.sh --apply
+```
+
+To uninstall from a selected namespace, run the script with the `-d` or `--delete` flag against the namespace:
 
 ```sh
 NAMESPACE=tekton-orka ./install.sh --delete
 ```
 
-Note that it is not necessary to specify the API endpoint to uninstall.
-
 ## Usage
 
-There are two main ways to use the `Tasks`:
+You can use these `Tasks` one of two ways:
 
-- If you only need a single macOS build agent, use the `orka-full` task. See the [`build-audiokit-pipeline`](samples/build-audiokit-pipeline.yml) example for a pipeline that clones a git repository, passes it to the Orka build agent, and stores build artifacts on a persistent volume.
-- If you need to run multiple parallel build agents in a pipeline, use the three modular `Tasks`:
+## Single macOS build agent
 
-    1. Set up an Orka job runner with the `orka-init` task
-    1. Deploy multiple VMs (either in parallel or in series) using the `orka-deploy` task
-    1. Clean up in the `finally` clause of the `Pipeline` using the `orka-teardown` task
+Use the `orka-full` task. 
 
-    See the [`parallel-deploy`](samples/parallel-deploy.yml) example for this approach.
+The [`build-audiokit-pipeline`](samples/build-audiokit-pipeline.yml) example provides a pipeline that:
+1. Clones a git repository.
+2. Passes it to the Orka build agent.
+3. Stores build artifacts on a persistent volume.
 
-In order to use the modular approach, you will need to configure a Kubernetes service account to run the `Pipeline`. See [the section below](#Configuring-A-Kubernetes-Service-Account) for more information.
+## Multiple macOS build agents
+
+Use the three modular `Tasks`:
+
+1. Set up an Orka job runner with the `orka-init` task.
+1. Deploy multiple VMs (either in parallel or in series) using the `orka-deploy` task.
+1. Clean up in the `finally` clause of the `Pipeline` using the `orka-teardown` task.
+
+See the [`parallel-deploy`](samples/parallel-deploy.yml) example for this approach.
+
+To use the modular approach, you need to configure a Kubernetes service account to run the `Pipeline`. See [the section below](#Configuring-A-Kubernetes-Service-Account) for more information.
 
 ## Configuring Credentials
 
@@ -117,7 +139,7 @@ Similarly, the SSH credentials are expected to be stored in a secret called `ork
 
 ## Configuring A Kubernetes Service Account
 
-In order to use the `orka-init` and `orka-teardown` tasks, you will need to configure a Kubernetes service account along with a cluster role and cluster role binding as follows:
+To use the `orka-init` and `orka-teardown` tasks, you will need to configure a Kubernetes service account along with a cluster role and cluster role binding as follows:
 
 ```yaml
 ---
@@ -153,7 +175,7 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 ```
 
-For the sake of convenience this can be accomplished by running the `add-service-account.sh` script:
+For convenience this can be accomplished by running the `add-service-account.sh` script:
 
 ```sh
 NAMESPACE=<namespace> ./add-service-account.sh --apply
