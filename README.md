@@ -2,7 +2,7 @@
 
 **IMPORTANT: These `Tasks` are compatible with Tekton Pipelines v0.16.0 or later.**
 
-**IMPORTANT: You need an Orka envrionment to run these `Tasks`.**
+**IMPORTANT: You need an Orka environment to run these `Tasks`.**
 
 This set of `Tasks` lets Tekton utilize macOS build agents running on [Orka](https://www.macstadium.com/orka) by MacStadium.
 
@@ -26,7 +26,7 @@ This set of `Tasks` lets Tekton utilize macOS build agents running on [Orka](htt
 * You need a Kubernetes cluster with Tekton Pipelines v0.16.0 or later configured.
 * You need an Orka environment with the following components:
   * Orka API endpoint (IP or custom domain). Usually, `http://10.221.188.100`, `http://10.10.10.100` or `https://<custom-domain>`.
-  * Dedicated Orka user with valid credentials (email & password). Create a new user or request one from your Orka administrator.
+  * A dedicated Orka user with valid credentials (email & password). Create a new user or request one from your Orka administrator.
   * SSH-enabled base image and the respective SSH credentials (email & password OR SSH key). Use an existing base image or create your own. 
 * You need an active VPN connection between your Kubernetes cluster and Orka. Use a VPN client for a temporary connection or create a site-to-site VPN tunnel for permanent access.
 
@@ -50,7 +50,7 @@ To uninstall from the `default` namespace, run the script with the `-d` or `--de
 
 ### Custom namespace installation
 
-Too install all `Tasks` and the Orka configuration in a custom namespace, run the following command against your preferred namespace and your actual Orka API endpoint:
+To install all `Tasks` and the Orka configuration in a custom namespace, run the following command against your preferred namespace and your actual Orka API endpoint:
 
 ```sh
 NAMESPACE=tekton-orka ORKA_API=http://10.221.188.100 ./install.sh --apply
@@ -150,13 +150,13 @@ roleRef:
 
 ## Storing your credentials
 
-The provided `Tasks` are configured to look for two Kubernetes secrets that store your credentials: `orka-creds` for the Orka user and `orka-ssh-creds` for the SSH credentials. In the current setup, both secrets have `username` and `password` keys.
+The provided `Tasks` look for two Kubernetes secrets that store your credentials: `orka-creds` for the Orka user and `orka-ssh-creds` for the SSH credentials. In the current setup, both secrets have `username` and `password` keys.
 
-These defaults are provided for convenience and you can change them via [`Task` parameters](#Configuring-Secrets-and-Config-Maps).
+These defaults exist for convenience and you can change them via [`Task` parameters](#Configuring-Secrets-and-Config-Maps).
 
 ### Script setup
 
-You need to create Kubernetes secrets to store the Orka user credentials and the SSH credentials for the base image.
+You need to create Kubernetes secrets to store the Orka user credentials and the base image's SSH credentials.
 
 To create a Kubernetes secret in the `default` namespace of your cluster, run the following commands:
 
@@ -165,7 +165,7 @@ EMAIL=<email> PASSWORD=<password> ./add-orka-creds.sh --apply
 SSH_USERNAME=<username> SSH_PASSWORD=<password> ./add-ssh-creds.sh --apply
 ```
 
-To create a Kubernetes secret in a custome namespace, run the following commands against your preferred namespace:
+To create a Kubernetes secret in a custom namespace, run the following commands against your preferred namespace:
 
 ```sh
 NAMESPACE=tekton-orka EMAIL=<email> PASSWORD=<password> ./add-orka-creds.sh --apply
@@ -176,7 +176,7 @@ NAMESPACE=tekton-orka SSH_USERNAME=<username> SSH_PASSWORD=<password> ./add-ssh-
 
 ### Manual setup
 
-If you want to create the Kubernetes secrets manually, you can use the following example configuration. Make sure to provide the correct credentials for your Orka environment and base image.
+If you want to create the Kubernetes secrets manually, you can use the following example configuration. Make sure to provide the correct credentials for your Orka environment and the base image.
 
 
 ```yaml
@@ -202,7 +202,7 @@ stringData:
 
 ### Using an SSH key
 
-If using an SSH key to connect to the VM instead of SSH username and password, complete the following:
+If using an SSH key to connect to the VM instead of an SSH username and password, complete the following:
 
 1. Copy the public key to the VM and commit the base image.
 2. Store the username and private key in a Kubernetes secret:
@@ -225,11 +225,11 @@ Use the following parameters to customize the `Tasks` to your workloads.
 | `cpu-count` | The number of CPU cores to dedicate for the VM. Must be 3, 4, 6, 8, 12, or 24. | 3 |
 | `vcpu-count` | The number of vCPUs for the VM. Must equal the number of CPUs, when CPU is less than or equal to 3. Otherwise, must equal half of or exactly the number of CPUs specified. | 3 |
 | `vnc-console` | Enables or disables VNC for the VM. | false |
-| `script` | The script to run inside of the VM. The script will be prepended with `#!/bin/sh` and `set -ex` if no shebang is present. You may supply your own shebang instead (e.g., to run a script with the shell of your choice, or a scripting language like Python or Ruby). | --- |
+| `script` | The script to run inside of the VM. The script will be prepended with `#!/bin/sh` and `set -ex` if no shebang is present. You can set your shebang instead (e.g., to run a script with your preferred shell or a scripting language like Python or Ruby). | --- |
 | `copy-build` | Specifies whether to copy build artifacts from the Orka VM back to the workspace. Disable when there is no need to copy build artifacts (e.g., when running tests or linting code). | true |
 | `verbose` | Enables verbose logging for all connection activity to the VM. | false |
 | `ssh-key` | Specifies whether the SSH credentials secret contains an [SSH key](#using-an-ssh-key), as opposed to a password. | false |
-| `delete-vm` | Applicable *only* to the `orka-deploy` task. Specifies whether to delete the VM after use when run in a pipeline. This lets you discard build agents that are no longer needed to free up resources. Set to false if you intend to manually clean up VMs after use.  | true |
+| `delete-vm` | Applicable *only* to the `orka-deploy` task. Specifies whether to delete the VM after use when run in a pipeline. You can discard build agents that are no longer needed to free up resources. Set to false if you intend to clean up VMs after use manually. | true |
 
 ### Configuring secrets and config maps
 
