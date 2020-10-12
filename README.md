@@ -1,10 +1,8 @@
-# Run macOS builds with MacStadium Orka
+# Run macOS builds with Tekton and Orka by MacStadium
 
-**IMPORTANT: These `Tasks` are compatible with Tekton Pipelines v0.16.0 or later.**
+> **IMPORTANT:** These `Tasks` require **Tekton Pipelines v0.16.0 or later** and an Orka environment running the **latest stable version of Orka**.
 
-**IMPORTANT: You need an Orka environment to run these `Tasks`.**
-
-This set of `Tasks` lets Tekton utilize macOS build agents running on [Orka](https://www.macstadium.com/orka) by MacStadium.
+With this set of `Tasks`, you can design Tekton pipelines that run macOS build agents on [Orka](https://www.macstadium.com/orka) by MacStadium.
 
 - [Prerequisites](#Prerequisites)
 - [Installation](#Installation)
@@ -25,18 +23,21 @@ This set of `Tasks` lets Tekton utilize macOS build agents running on [Orka](htt
 
 * You need a Kubernetes cluster with Tekton Pipelines v0.16.0 or later configured.
 * You need an Orka environment with the following components:
-  * Orka API endpoint (IP or custom domain). Usually, `http://10.221.188.100`, `http://10.10.10.100` or `https://<custom-domain>`.
+  * The latest stable version of Orka.
+  * [An Orka service endpoint](https://orkadocs.macstadium.com/docs/endpoint-faqs#whats-the-orka-service-endpoint) (IP or custom domain). Usually, `http://10.221.188.100`, `http://10.10.10.100` or `https://<custom-domain>`.
   * A dedicated Orka user with valid credentials (email & password). Create a new user or request one from your Orka administrator.
-  * SSH-enabled base image and the respective SSH credentials (email & password OR SSH key). Use an existing base image or create your own. 
-* You need an active VPN connection between your Kubernetes cluster and Orka. Use a VPN client for a temporary connection or create a site-to-site VPN tunnel for permanent access.
+  * An SSH-enabled base image and the respective SSH credentials (email & password OR SSH key). Use an [existing base image](https://orkadocs.macstadium.com/docs/existing-images-upload-management) or [create your own](https://orkadocs.macstadium.com/docs/creating-an-ssh-enabled-image). 
+* You need an active VPN connection between your Kubernetes cluster and Orka. Use a [VPN client](https://orkadocs.macstadium.com/docs/vpn-connect) for temporary access or create a [site-to-site VPN tunnel](https://orkadocs.macstadium.com/docs/aws-orka-connections) for permanent access.
 
 See also: [Using Orka, At a Glance](https://orkadocs.macstadium.com/docs/quick-start-introduction)
 
 ## Installation
 
+Before you can use these `Tasks` in Tekton pipelines, you need to install them and the Orka configuration in your Kubernetes cluster.
+
 ### Default namespace installation
 
-To install all `Tasks` and the Orka configuration in the `default` namespace within your Kubernetes cluster, run the following command against your actual Orka API endpoint.
+To install in the `default` namespace of your Kubernetes cluster, run the following command against your actual Orka API endpoint.
 
 ```sh
 ORKA_API=http://10.221.188.100 ./install.sh --apply
@@ -50,7 +51,7 @@ To uninstall from the `default` namespace, run the script with the `-d` or `--de
 
 ### Custom namespace installation
 
-To install all `Tasks` and the Orka configuration in a custom namespace, run the following command against your preferred namespace and your actual Orka API endpoint:
+To install in a custom namespace, run the following command against your preferred namespace and your actual Orka API endpoint:
 
 ```sh
 NAMESPACE=tekton-orka ORKA_API=http://10.221.188.100 ./install.sh --apply
@@ -64,24 +65,25 @@ NAMESPACE=tekton-orka ./install.sh --delete
 
 ## Usage
 
-You can use these `Tasks` one of two ways:
+You can use these `Tasks` one of two ways: to spin up and clean up **a single macOS build agent** OR **multiple macOS build agents (in series or in parallel)**.
 
 ### Single macOS build agent
 
-You can create a pipeline based around the `orka-full` task.
+To spin up, run a build on, and then clean up a single macOS build agent, you can create a pipeline based around the `orka-full` task.
 
 The sample [`build-audiokit-pipeline`](samples/build-audiokit-pipeline.yml) shows you how to use the `orka-full` task in a pipeline that performs the following operations:
 1. Clones a git repository.
 2. Passes it to the Orka build agent.
 3. Stores build artifacts on a persistent volume.
+4. Cleans up the Orka environment.
 
 ### Multiple macOS build agents
 
-You can create pipelines that use the three modular `Tasks`: `orka-init`, `orka-deploy`, and `orka-teardown` (in that order). 
+To spin up, run a build on, and then clean up multiple macOS build agents, you can create pipelines that use the three modular `Tasks`: `orka-init`, `orka-deploy`, and `orka-teardown` (in that order). 
 
 1. `orka-init` sets up an Orka job runner.
 1. `orka deploy` deploys one or more VMs (either in parallel or consecutively).
-1. `orka-teardown` cleans up your Orka environment. You need to use this task in the `finally` clause of the `Pipeline`.
+1. `orka-teardown` cleans up your Orka environment. This task should be used only in the `finally` clause of the `Pipeline`. Including this task in a pipeline is optional.
 
 > **IMPORTANT:** To use the modular approach, you need to configure a Kubernetes service account to run the `Pipeline`. See [here](#Configuring-A-Kubernetes-Service-Account).
 
@@ -112,7 +114,7 @@ NAMESPACE=tekton-orka ./add-service-account.sh --apply
 
 **Manual setup**
 
-If you want to set up the service account manually, you can use this configuration:
+If you want to set up the service account manually, you can use this sample configuration:
 
 ```yaml
 ---
@@ -152,7 +154,7 @@ roleRef:
 
 The provided `Tasks` look for two Kubernetes secrets that store your credentials: `orka-creds` for the Orka user and `orka-ssh-creds` for the SSH credentials. In the current setup, both secrets have `username` and `password` keys.
 
-These defaults exist for convenience and you can change them via [`Task` parameters](#Configuring-Secrets-and-Config-Maps).
+These defaults exist for convenience and you can change them using the available [`Task` parameters](#Configuring-Secrets-and-Config-Maps).
 
 ### Script setup
 
@@ -211,11 +213,11 @@ If using an SSH key to connect to the VM instead of an SSH username and password
 kubectl create secret generic orka-ssh-key --from-file=id_rsa=/path/to/id_rsa --from-literal=username=<username>
 ```
 
-See the [`use-ssh-key`](samples/use-ssh-key.yml) example for more information.
+See also: [`use-ssh-key`](samples/use-ssh-key.yml) example
 
 ## Task Parameter Reference
 
-Use the following parameters to customize the `Tasks` to your workloads.
+Use the following parameters to customize the `Tasks`.
 
 ### Common Parameters
 
@@ -242,6 +244,6 @@ Use the following parameters to customize the `Tasks` to your workloads.
 | `ssh-username-key` | The name of the key in the VM SSH credentials secret for the username associated with the macOS VM. | username |
 | `ssh-password-key` | The name of the key in the VM SSH credentials secret for the password associated with the macOS VM. If `ssh-key` is true, this parameter should specify the name of the key in the VM SSH credentials secret that holds the private SSH key. | password |
 | `orka-token-secret` | The name of the secret holding the authentication token used to access the Orka API. Applicable to `orka-init` / `orka-deploy` / `orka-teardown`. | orka-token |
-| `orka-token-secret-key` | The name of the key in the Orka token secret which holds the authentication token. Applicable to `orka-init` / `orka-deploy` / `orka-teardown`. | token |
-| `orka-vm-name-config` | The name of the config map which stores the name of the generated VM configuration. Applicable to `orka-init` / `orka-deploy` / `orka-teardown`. | orka-vm-name |
-| `orka-vm-name-config-key` | The name of the key in the VM name config map which stores the name of the generated VM configuration. Applicable to `orka-init` / `orka-deploy` / `orka-teardown`. | vm-name |
+| `orka-token-secret-key` | The name of the key in the Orka token secret, which holds the authentication token. Applicable to `orka-init` / `orka-deploy` / `orka-teardown`. | token |
+| `orka-vm-name-config` | The name of the config map, which stores the name of the generated VM configuration. Applicable to `orka-init` / `orka-deploy` / `orka-teardown`. | orka-vm-name |
+| `orka-vm-name-config-key` | The name of the key in the VM name config map, which stores the name of the generated VM configuration. Applicable to `orka-init` / `orka-deploy` / `orka-teardown`. | vm-name |
