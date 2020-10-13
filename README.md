@@ -1,35 +1,37 @@
 # Run macOS builds with Tekton and Orka by MacStadium
 
-> **IMPORTANT:** These `Tasks` require **Tekton Pipelines v0.16.0 or later** and an Orka environment running the **latest stable version of Orka**.
+> **IMPORTANT:** These `Tasks` require **Tekton Pipelines v0.16.0 or later** and an Orka environment running on **Orka 1.4.1 or later**.
 
-With this set of `Tasks`, you can design Tekton pipelines that run macOS build agents on [Orka](https://www.macstadium.com/orka) by MacStadium.
+With this set of `Tasks`, you can use your [Orka](https://www.macstadium.com/orka) environment to run macOS builds and macOS-related testing from your Tekton pipelines.
 
-- [Prerequisites](#Prerequisites)
-- [Installation](#Installation)
-  - [Default namespace installation](#default-namespace-installation)
-  - [Custom namespace installation](#custom-namespace-installation)
-- [Usage](#Usage)
-  - [Single macOS build agent](#single-macos-build-agent)
-  - [Multiple macOS build agents](#multiple-macos-build-agents)
-- [Storing your credentials](#Storing-your-credentials)
-  - [Script setup](#script-setup)
-  - [Manual setup](#manual-setup)
-  - [Using an SSH key](#using-an-ssh-key)
-- [Task parameter reference](#Task-Parameter-Reference)
-  - [Common parameters](#Common-Parameters)
-  - [Configuring secrets and config maps](#Configuring-Secrets-and-Config-Maps)
+* [Prerequisites](#Prerequisites)
+* [Installation](#Installation)
+  * [Default namespace installation](#default-namespace-installation)
+  * [Custom namespace installation](#custom-namespace-installation)
+* [Usage](#Usage)
+  * [Single macOS build agent](#single-macos-build-agent)
+  * [Multiple macOS build agents](#multiple-macos-build-agents)
+* [Storing your credentials](#Storing-your-credentials)
+  * [Script setup](#script-setup)
+  * [Manual setup](#manual-setup)
+  * [Using an SSH key](#using-an-ssh-key)
+* [Task parameter reference](#Task-Parameter-Reference)
+  * [Common parameters](#Common-Parameters)
+  * [Configuring secrets and config maps](#Configuring-Secrets-and-Config-Maps)
 
 ## Prerequisites
 
 * You need a Kubernetes cluster with Tekton Pipelines v0.16.0 or later configured.
 * You need an Orka environment with the following components:
-  * The latest stable version of Orka.
+  * Orka 1.4.1 or later.
   * [An Orka service endpoint](https://orkadocs.macstadium.com/docs/endpoint-faqs#whats-the-orka-service-endpoint) (IP or custom domain). Usually, `http://10.221.188.100`, `http://10.10.10.100` or `https://<custom-domain>`.
   * A dedicated Orka user with valid credentials (email & password). Create a new user or request one from your Orka administrator.
   * An SSH-enabled base image and the respective SSH credentials (email & password OR SSH key). Use an [existing base image](https://orkadocs.macstadium.com/docs/existing-images-upload-management) or [create your own](https://orkadocs.macstadium.com/docs/creating-an-ssh-enabled-image). 
 * You need an active VPN connection between your Kubernetes cluster and Orka. Use a [VPN client](https://orkadocs.macstadium.com/docs/vpn-connect) for temporary access or create a [site-to-site VPN tunnel](https://orkadocs.macstadium.com/docs/aws-orka-connections) for permanent access.
 
 See also: [Using Orka, At a Glance](https://orkadocs.macstadium.com/docs/quick-start-introduction)
+
+See also: [GCP-MacStadium Site-to-Site VPN](https://docs.macstadium.com/docs/google-cloud-setup)
 
 ## Installation
 
@@ -82,10 +84,10 @@ The sample [`build-audiokit-pipeline`](samples/build-audiokit-pipeline.yml) show
 To spin up, run a build on, and then clean up multiple macOS build agents, you can create pipelines that use the three modular `Tasks`: `orka-init`, `orka-deploy`, and `orka-teardown` (in that order). 
 
 1. `orka-init` sets up an Orka job runner.
-1. `orka deploy` deploys one or more VMs (either in parallel or consecutively).
-1. `orka-teardown` cleans up your Orka environment. This task should be used only in the `finally` clause of the `Pipeline`. Including this task in a pipeline is optional.
+2. `orka deploy` deploys one or more VMs (either in parallel or consecutively).
+3. `orka-teardown` cleans up your Orka environment. This task should be used only in the `finally` clause of the `Pipeline`.
 
-> **IMPORTANT:** To use the modular approach, you need to configure a Kubernetes service account to run the `Pipeline`. See [here](#Configuring-A-Kubernetes-Service-Account).
+> **IMPORTANT:** To use the modular approach, you need to configure a Kubernetes service account to run the `Pipeline`. See [here](#kubernetes-service-account-setup).
 
 The [`parallel-deploy`](samples/parallel-deploy.yml) sample shows you how to use the three modular tasks in a pipeline that performs the following operations:
 1. Sets up an Orka job runner.
@@ -104,13 +106,23 @@ To create the service account in your `default` namespace, run the following com
 ./add-service-account.sh --apply
 ```
 
+To remove the service account from the `default` namespace, run:
+
+```sh
+./add-service-account.sh --delete
+```
+
 To create the service account in a custom namespace, run the following command against the namespace:
 
 ```sh
 NAMESPACE=tekton-orka ./add-service-account.sh --apply
 ```
 
-> **TIP:** To remove the service account, just run the same command you ran initially with the `--delete` flag instead of the `--apply` flag.
+To remove the service account from the custom namespace, run the following command against the namespace:
+
+```sh
+NAMESPACE=tekton-orka ./add-service-account.sh --delete
+```
 
 **Manual setup**
 
@@ -167,6 +179,13 @@ EMAIL=<email> PASSWORD=<password> ./add-orka-creds.sh --apply
 SSH_USERNAME=<username> SSH_PASSWORD=<password> ./add-ssh-creds.sh --apply
 ```
 
+To remove the secrets from the `default` namespace, run:
+
+```sh
+EMAIL=<email> PASSWORD=<password> ./add-orka-creds.sh --delete
+SSH_USERNAME=<username> SSH_PASSWORD=<password> ./add-ssh-creds.sh --delete
+```
+
 To create a Kubernetes secret in a custom namespace, run the following commands against your preferred namespace:
 
 ```sh
@@ -174,7 +193,12 @@ NAMESPACE=tekton-orka EMAIL=<email> PASSWORD=<password> ./add-orka-creds.sh --ap
 NAMESPACE=tekton-orka SSH_USERNAME=<username> SSH_PASSWORD=<password> ./add-ssh-creds.sh --apply
 ```
 
-> **TIP:** To remove the secrets, just run the same command you ran initially with the `--delete` flag instead of the `--apply` flag.
+To remove the secrets from the custom specify, run the following commands against the namespace:
+
+```sh
+NAMESPACE=tekton-orka EMAIL=<email> PASSWORD=<password> ./add-orka-creds.sh --delete
+NAMESPACE=tekton-orka SSH_USERNAME=<username> SSH_PASSWORD=<password> ./add-ssh-creds.sh --delete
+```
 
 ### Manual setup
 
