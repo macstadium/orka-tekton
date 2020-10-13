@@ -182,8 +182,8 @@ SSH_USERNAME=<username> SSH_PASSWORD=<password> ./add-ssh-creds.sh --apply
 To remove the secrets from the `default` namespace, run:
 
 ```sh
-EMAIL=<email> PASSWORD=<password> ./add-orka-creds.sh --delete
-SSH_USERNAME=<username> SSH_PASSWORD=<password> ./add-ssh-creds.sh --delete
+./add-orka-creds.sh --delete
+./add-ssh-creds.sh --delete
 ```
 
 To create a Kubernetes secret in a custom namespace, run the following commands against your preferred namespace:
@@ -196,8 +196,8 @@ NAMESPACE=tekton-orka SSH_USERNAME=<username> SSH_PASSWORD=<password> ./add-ssh-
 To remove the secrets from the custom specify, run the following commands against the namespace:
 
 ```sh
-NAMESPACE=tekton-orka EMAIL=<email> PASSWORD=<password> ./add-orka-creds.sh --delete
-NAMESPACE=tekton-orka SSH_USERNAME=<username> SSH_PASSWORD=<password> ./add-ssh-creds.sh --delete
+NAMESPACE=tekton-orka ./add-orka-creds.sh --delete
+NAMESPACE=tekton-orka ./add-ssh-creds.sh --delete
 ```
 
 ### Manual setup
