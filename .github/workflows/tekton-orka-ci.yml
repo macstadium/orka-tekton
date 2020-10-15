@@ -3,7 +3,7 @@ name: tekton-orka-ci
 on:
   push:
     paths:
-      - scripts
+      - scripts/**
     branches:
       - master
 
