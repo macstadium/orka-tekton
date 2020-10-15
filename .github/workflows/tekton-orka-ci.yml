@@ -2,8 +2,8 @@ name: tekton-orka-ci
 
 on:
   push:
-    paths:
-      - '*'
+    # paths:
+    #   - '*'
     branches:
       - master
 
