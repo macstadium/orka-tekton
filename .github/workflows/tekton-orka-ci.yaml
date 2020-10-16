@@ -3,6 +3,7 @@ name: tekton-orka-ci
 on:
   push:
     paths:
+      - .github/workflows/tekton-orka-ci.yaml
       - scripts/**
     branches:
       - master
@@ -21,7 +22,7 @@ jobs:
         run: |
           set -ex
 
-          IMAGE=macstadium/tekton-orka
+          IMAGE=macstadium/orka-tekton-runner
 
           docker build --tag $IMAGE .
           docker push $IMAGE
