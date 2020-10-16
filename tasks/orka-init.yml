@@ -21,7 +21,7 @@ spec:
       default: "3"
     - name: vnc-console
       type: string
-      description: Enables or disables VNC for the VM configuration.
+      description: Enables or disables VNC for the VM.
       default: "true"
     - name: orka-creds-secret
       type: string
@@ -30,14 +30,12 @@ spec:
     - name: orka-creds-email-key
       type: string
       description: |
-        The name of the key in the Orka credentials secret for the email address
-        associated with the service account.
+        The name of the key in the Orka user credentials secret for the email address associated with the Orka user.
       default: email
     - name: orka-creds-password-key
       type: string
       description: |
-        The name of the key in the Orka credentials secret for the password
-        associated with the service account.
+        The name of the key in the Orka credentials secret for the password associated with the Orka user.
       default: password
     - name: orka-token-secret
       type: string
@@ -47,17 +45,17 @@ spec:
     - name: orka-token-secret-key
       type: string
       description: |
-        The name of the key in the Orka token secret which holds the authentication token.
+        The name of the key in the Orka token secret, which holds the authentication token.
       default: token
     - name: orka-vm-name-config
       type: string
       description: |
-        The name of the config map which stores the name of the generated VM configuration.
+        The name of the config map, which stores the name of the generated VM configuration.
       default: orka-vm-name
     - name: orka-vm-name-config-key
       type: string
       description: |
-        The name of the key in the VM name config map which stores the name of the generated VM configuration.
+        The name of the key in the VM name config map, which stores the name of the generated VM configuration.
       default: vm-name
   results:
     - name: vm-name
