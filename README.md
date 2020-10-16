@@ -26,7 +26,7 @@ With this set of `Tasks`, you can use your [Orka](https://www.macstadium.com/ork
   * Orka 1.4.1 or later.
   * [An Orka service endpoint](https://orkadocs.macstadium.com/docs/endpoint-faqs#whats-the-orka-service-endpoint) (IP or custom domain). Usually, `http://10.221.188.100`, `http://10.10.10.100` or `https://<custom-domain>`.
   * A dedicated Orka user with valid credentials (email & password). Create a new user or request one from your Orka administrator.
-  * An SSH-enabled base image and the respective SSH credentials (email & password OR SSH key). Use an [existing base image](https://orkadocs.macstadium.com/docs/existing-images-upload-management) or [create your own](https://orkadocs.macstadium.com/docs/creating-an-ssh-enabled-image). 
+  * An SSH-enabled base image and the respective SSH credentials (email & password OR SSH key). Use an [existing base image](https://orkadocs.macstadium.com/docs/existing-images-upload-management) or [create your own](https://orkadocs.macstadium.com/docs/creating-an-ssh-enabled-image).
 * You need an active VPN connection between your Kubernetes cluster and Orka. Use a [VPN client](https://orkadocs.macstadium.com/docs/vpn-connect) for temporary access or create a [site-to-site VPN tunnel](https://orkadocs.macstadium.com/docs/aws-orka-connections) for permanent access.
 
 See also: [Using Orka, At a Glance](https://orkadocs.macstadium.com/docs/quick-start-introduction)
@@ -73,7 +73,7 @@ You can use these `Tasks` one of two ways: to spin up and clean up **a single ma
 
 To spin up, run a build on, and then clean up a single macOS build agent, you can create a pipeline based around the `orka-full` task.
 
-The sample [`build-audiokit-pipeline`](samples/build-audiokit-pipeline.yml) shows you how to use the `orka-full` task in a pipeline that performs the following operations:
+The sample [`build-audiokit-pipeline`](samples/build-audiokit-pipeline.yaml) shows you how to use the `orka-full` task in a pipeline that performs the following operations:
 1. Clones a git repository.
 2. Passes it to the Orka build agent.
 3. Stores build artifacts on a persistent volume.
@@ -81,7 +81,7 @@ The sample [`build-audiokit-pipeline`](samples/build-audiokit-pipeline.yml) show
 
 ### Multiple macOS build agents
 
-To spin up, run a build on, and then clean up multiple macOS build agents, you can create pipelines that use the three modular `Tasks`: `orka-init`, `orka-deploy`, and `orka-teardown` (in that order). 
+To spin up, run a build on, and then clean up multiple macOS build agents, you can create pipelines that use the three modular `Tasks`: `orka-init`, `orka-deploy`, and `orka-teardown` (in that order).
 
 1. `orka-init` sets up an Orka job runner.
 2. `orka deploy` deploys one or more VMs (either in parallel or consecutively).
@@ -89,14 +89,14 @@ To spin up, run a build on, and then clean up multiple macOS build agents, you c
 
 > **IMPORTANT:** To use the modular approach, you need to configure a Kubernetes service account to run the `Pipeline`. See [here](#kubernetes-service-account-setup).
 
-The [`parallel-deploy`](samples/parallel-deploy.yml) sample shows you how to use the three modular tasks in a pipeline that performs the following operations:
+The [`parallel-deploy`](samples/parallel-deploy.yaml) sample shows you how to use the three modular tasks in a pipeline that performs the following operations:
 1. Sets up an Orka job runner.
 2. Deploys 2 VMs and executes a different script on each VM.
 3. Cleans up the environment.
 
 #### Kubernetes service account setup
 
-To use the `orka-init` and `orka-teardown` tasks, you need to configure a Kubernetes service account, a cluster role, and a cluster role binding. 
+To use the `orka-init` and `orka-teardown` tasks, you need to configure a Kubernetes service account, a cluster role, and a cluster role binding.
 
 **Script setup**
 
@@ -237,7 +237,7 @@ If using an SSH key to connect to the VM instead of an SSH username and password
 kubectl create secret generic orka-ssh-key --from-file=id_rsa=/path/to/id_rsa --from-literal=username=<username>
 ```
 
-See also: [`use-ssh-key`](samples/use-ssh-key.yml) example
+See also: [`use-ssh-key`](samples/use-ssh-key.yaml) example
 
 ## Task Parameter Reference
 
