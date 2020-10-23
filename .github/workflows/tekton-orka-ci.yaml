@@ -5,6 +5,7 @@ on:
     paths:
       - .github/workflows/tekton-orka-ci.yaml
       - scripts/**
+      - Dockerfile
     branches:
       - master
       - releases/*
