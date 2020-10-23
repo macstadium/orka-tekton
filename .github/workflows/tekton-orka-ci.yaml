@@ -23,7 +23,7 @@ jobs:
         run: |
           set -eux
 
-          IMAGE=macstadium/orka-tekton-runner:master
+          IMAGE=macstadium/orka-tekton-runner
           IMAGE_TAG=$(date '+%Y-%m-%d')-$(git rev-parse --short=8 HEAD)-${GITHUB_REF##*/}
 
           docker build --tag $IMAGE:$IMAGE_TAG .

@@ -61,7 +61,7 @@ spec:
     - name: vm-name
   steps:
     - name: init
-      image: macstadium/orka-tekton-runner:master
+      image: macstadium/orka-tekton-runner:0.1
       env:
         - name: ORKA_API
           valueFrom:
