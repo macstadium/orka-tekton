@@ -78,7 +78,7 @@ spec:
       default: vm-name
   steps:
     - name: copy-script
-      image: macstadium/orka-tekton-runner
+      image: macstadium/orka-tekton-runner:master
       script: |
         #!/bin/sh
         SCRIPT=$(mktemp)
@@ -88,7 +88,7 @@ spec:
         EOF
         copy-script $SCRIPT
     - name: build
-      image: macstadium/orka-tekton-runner
+      image: macstadium/orka-tekton-runner:master
       env:
         - name: ORKA_API
           valueFrom:

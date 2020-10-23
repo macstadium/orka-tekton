@@ -27,7 +27,7 @@ spec:
       default: vm-name
   steps:
     - name: teardown
-      image: macstadium/orka-tekton-runner
+      image: macstadium/orka-tekton-runner:master
       env:
         - name: ORKA_API
           valueFrom:
