@@ -19,17 +19,17 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Create image tag
-        run: |
-          IMAGE_TAG=$(date '+%Y-%m-%d')-$(git rev-parse --short=8 HEAD)-${GITHUB_REF##*/}
-          echo "::set-env name=IMAGE_TAG::${IMAGE_TAG}"
       - name: Deploy image
         run: |
           set -eux
 
           IMAGE=macstadium/orka-tekton-runner
-          echo $IMAGE_TAG
-          echo ${GITHUB_REF##*/}
+          IMAGE_TAG=$(date '+%Y-%m-%d')-$(git rev-parse --short=8 HEAD)-${GITHUB_REF##*/}
 
-          # docker build --tag $IMAGE .
-          # docker push $IMAGE
+          docker build --tag $IMAGE:$IMAGE_TAG .
+          if [ "$GITHUB_REF" == "refs/heads/master" ]; then
+            docker tag $IMAGE:$IMAGE_TAG $IMAGE:master
+          else
+            docker tag $IMAGE:$IMAGE_TAG $IMAGE:${GITHUB_REF##*/}
+          fi
+          docker push $IMAGE
