@@ -11,7 +11,7 @@ RUN apk add \
   sshpass
 RUN curl \
   --output /usr/bin/kubectl \
-  --location https://storage.googleapis.com/kubernetes-release/release/v1.16.1/bin/linux/amd64/kubectl \
+  --location https://storage.googleapis.com/kubernetes-release/release/v1.18.8/bin/linux/amd64/kubectl \
   && chmod 755 /usr/bin/kubectl
 COPY scripts/orka-full.sh /usr/local/bin/orka-full
 COPY scripts/orka-init.sh /usr/local/bin/orka-init
