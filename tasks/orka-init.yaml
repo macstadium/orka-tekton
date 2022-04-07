@@ -23,6 +23,34 @@ spec:
       type: string
       description: Enables or disables VNC for the VM.
       default: "true"
+    - name: vm-metadata
+      type: string
+      description: "Inject custom metadata to the VM. You need to provide the metadata in format: {\"items\": [{\"key\": \"\", \"value\": \"\"}]}"
+      default: ""
+    - name: system-serial
+      type: string
+      description: "Assign an owned macOS system serial number to the VM. You need to provide the systemSerial in format: {{systemSerial}}"
+      default: ""
+    - name: io-boost
+      type: string
+      description: Enables or disables IO performance improvements for the VM.
+      default: "false"
+    - name: gpu-passthrough
+      type: string
+      description: Enables or disables GPU passthrough for the VM.
+      default: "false"
+    - name: tag
+      type: string
+      description: When specified, the VM is preferred to be deployed to a node marked with this tag.
+      default: ""
+    - name: tag-required
+      type: string
+      description: VM is required to be deployed to a node marked with tag specified above.
+      default: "false"
+    - name: scheduler
+      type: string
+      description: "When set to 'most-allocated', the deployed VM will be scheduled to nodes having most of their resources allocated."
+      default: "default"
     - name: orka-creds-secret
       type: string
       description: The name of the secret holding your Orka credentials.
@@ -60,7 +88,7 @@ spec:
   results:
     - name: vm-name
   steps:
-    - name: init
+    - name: initialize
       image: macstadium/orka-tekton-runner:master
       env:
         - name: ORKA_API
@@ -76,6 +104,18 @@ spec:
           value: $(params.vcpu-count)
         - name: VNC_CONSOLE
           value: $(params.vnc-console)
+        - name: VM_METADATA
+          value: $(params.vm-metadata)
+        - name: SYSTEM_SERIAL
+          value: $(params.system-serial)
+        - name: GPU_PASSTHROUGH
+          value: $(params.gpu-passthrough)
+        - name: TAG
+          value: $(params.tag)
+        - name: TAG_REQUIRED
+          value: $(params.tag-required)
+        - name: SCHEDULER
+          value: $(params.scheduler)
         - name: SVC_EMAIL
           valueFrom:
             secretKeyRef:

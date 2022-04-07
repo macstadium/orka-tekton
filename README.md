@@ -73,7 +73,7 @@ You can use these `Tasks` one of two ways: to spin up and clean up **a single ma
 
 To spin up, run a build on, and then clean up a single macOS build agent, you can create a pipeline based around the `orka-full` task.
 
-The sample [`build-audiokit-pipeline`](samples/build-audiokit-pipeline.yaml) shows you how to use the `orka-full` task in a pipeline that performs the following operations:
+The sample [`build-calcupad-pipeline`](samples/build-calcupad-pipeline.yaml) shows you how to use the `orka-full` task in a pipeline that performs the following operations:
 1. Clones a git repository.
 2. Passes it to the Orka build agent.
 3. Stores build artifacts on a persistent volume.
@@ -253,6 +253,12 @@ Use the following parameters to customize the `Tasks`.
 | `cpu-count` | The number of CPU cores to dedicate for the VM. Must be 3, 4, 6, 8, 12, or 24. | 3 |
 | `vcpu-count` | The number of vCPUs for the VM. Must equal the number of CPUs, when CPU is less than or equal to 3. Otherwise, must equal half of or exactly the number of CPUs specified. | 3 |
 | `vnc-console` | Enables or disables VNC for the VM. | false |
+| `vm-metadata` | Inject custom metadata to the VM. You need to provide the metadata in format: {\"items\": [{\"key\": \"\", \"value\": \"\"}]}. | --- |
+| `system-serial` | Assign an owned macOS system serial number to the VM. You need to provide the systemSerial in format: {{systemSerial}} | --- |
+| `gpu-passthrough` | Enables or disables GPU passthrough for the VM. | false |
+| `tag` | When specified, the VM is preferred to be deployed to a node marked with this tag. | --- |
+| `tag-required` | VM is required to be deployed to a node marked with tag specified above. | false |
+| `scheduler` | When set to 'most-allocated', the deployed VM will be scheduled to nodes having most of their resources allocated. | default |
 | `script` | The script to run inside of the VM. The script will be prepended with `#!/bin/sh` and `set -ex` if no shebang is present. You can set your shebang instead (e.g., to run a script with your preferred shell or a scripting language like Python or Ruby). | --- |
 | `copy-build` | Specifies whether to copy build artifacts from the Orka VM back to the workspace. Disable when there is no need to copy build artifacts (e.g., when running tests or linting code). | true |
 | `verbose` | Enables verbose logging for all connection activity to the VM. | false |

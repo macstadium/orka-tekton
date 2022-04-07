@@ -2,6 +2,12 @@
 # This example relies on the git-clone Task:
 # https://github.com/tektoncd/catalog/tree/master/task/git-clone/0.2
 #
+# This example shows how to use a PersistentVolumeClaim to store the artifacts on a NFS.
+# When using a PVC, an existing PersistentVolume is required.
+# Modify the following for the PV if you wish to use a NFS:
+#   server: <your-nfs-server-ip>
+#   path: <your-nfs-path>
+#
 # ###
 #
 # This Pipeline will first clone a git repository into a shared workspace.
@@ -9,17 +15,31 @@
 # script will be executed inside the VM.
 # Build artifacts will then be transferred back to the Tekton workspace,
 # which can be consumed by a later Task in the Pipeline, or simply
-# saved to a cloud storage bucket.
+# saved to a mounted NFS, cloud storage bucket, etc.
 #
 # ###
 # Install the git-clone task:
 # kubectl apply -f https://raw.githubusercontent.com/tektoncd/catalog/master/task/git-clone/0.2/git-clone.yaml
 # ###
 ---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: manual
+  nfs:
+    server: <your-nfs-server-ip>
+    path: <your-nfs-path>
+---
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: build-audiokit-pipeline
+  name: build-calcupad-pipeline
 spec:
   workspaces:
     - name: shared-data
@@ -32,8 +52,8 @@ spec:
           workspace: shared-data
       params:
         - name: url
-          value: https://github.com/audiokit/AudioKit.git
-    - name: build-audiokit
+          value: https://github.com/kwonye/calcupad.git
+    - name: build-calcupad
       runAfter:
         - fetch-repo
       taskRef:
@@ -49,14 +69,13 @@ spec:
           value: "true"
         - name: script
           value: |
-            cd AudioKit/iOS
-            time xcodebuild
+            time xcodebuild CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
       workspaces:
         - name: orka
           workspace: shared-data
     - name: show-build
       runAfter:
-        - build-audiokit
+        - build-calcupad
       workspaces:
         - name: source
           workspace: shared-data
@@ -69,16 +88,17 @@ spec:
             script: |
               #!/bin/sh
               set -ex
-              ls -al $(workspaces.source.path)/AudioKit/iOS
-              ls -al $(workspaces.source.path)/AudioKit/iOS/build
+              ls -al $(workspaces.source.path)
+              ls -al $(workspaces.source.path)/build
+              ls -al $(workspaces.source.path)/build/Release-iphoneos
 ---
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: run-build-audiokit-pipeline
+  name: run-build-calcupad-pipeline
 spec:
   pipelineRef:
-    name: build-audiokit-pipeline
+    name: build-calcupad-pipeline
   workspaces:
     - name: shared-data
       volumeClaimTemplate:

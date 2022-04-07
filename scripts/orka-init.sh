@@ -23,17 +23,26 @@ chmod 400 /etc/orka-token
 
 # Create VM config
 VM_NAME="tekton-$(openssl rand -hex 4)"
-curl $CURL_FLAGS --request POST "${ORKA_API}/resources/vm/create" \
-  --header 'Content-Type: application/json' \
-  --header "Authorization: Bearer $TOKEN" \
-  --data-raw "{
-    \"orka_vm_name\": \"$VM_NAME\",
+REQUEST_DATA="\"orka_vm_name\": \"$VM_NAME\",
     \"orka_base_image\": \"$BASE_IMAGE\",
     \"orka_image\": \"$VM_NAME\",
     \"orka_cpu_core\": $CPU_COUNT,
     \"vcpu_count\": $VCPU_COUNT,
-    \"vnc_console\": $VNC_CONSOLE
-  }"
+    \"vnc_console\": $VNC_CONSOLE,
+    \"gpu_passthrough\": $GPU_PASSTHROUGH,
+    \"tag\": \"$TAG\",
+    \"tag_required\": $TAG_REQUIRED,
+    \"scheduler\": \"$SCHEDULER\""
+
+# Add system_serial if passed
+if [ -n "$SYSTEM_SERIAL" ]; then
+  REQUEST_DATA="$REQUEST_DATA, \"system_serial\": \"$SYSTEM_SERIAL\""
+fi
+
+curl $CURL_FLAGS --request POST "${ORKA_API}/resources/vm/create" \
+  --header 'Content-Type: application/json' \
+  --header "Authorization: Bearer $TOKEN" \
+  --data-raw "{$REQUEST_DATA}"
 if [ $? -ne 0 ]; then
   echo "Invalid VM configuration!" >&2
   exit 1

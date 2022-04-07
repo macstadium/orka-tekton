@@ -3,13 +3,18 @@ set -e
 
 CURL_FLAGS='--location --fail'
 
+REQUEST_DATA="\"orka_vm_name\": \"$VM_NAME\""
+
+# Add vm_metadata if passed
+if [ -n "$VM_METADATA" ]; then
+  REQUEST_DATA="$REQUEST_DATA, \"vm_metadata\": $VM_METADATA"
+fi
+
 # Deploy VM
 VM_DETAILS=$(curl $CURL_FLAGS --request POST "${ORKA_API}/resources/vm/deploy" \
   --header 'Content-Type: application/json' \
   --header "Authorization: Bearer $TOKEN" \
-  --data-raw "{
-    \"orka_vm_name\": \"${VM_NAME}\"
-  }"
+  --data-raw "{$REQUEST_DATA}"
   )
 echo $VM_DETAILS
 
