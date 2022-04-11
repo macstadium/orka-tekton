@@ -3,11 +3,30 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: orka-init
+  labels:
+    app.kubernetes.io/version: "0.1"
+  annotations:
+    tekton.dev/categories: Cloud, Kubernetes
+    tekton.dev/pipelines.minVersion: "0.16.0"
+    tekton.dev/tags: "orka, macstadium, init, setup"
+    tekton.dev/displayName: "MacStadium Orka Init"
+    tekton.dev/platforms: "linux/amd64"
 spec:
+  description: >-
+    With this set of Tasks, you can use your Orka environment
+    to run macOS builds and macOS-related testing from your Tekton pipelines.
+
+    This Task creates a VM template with the specified configuration.
+    All operations in this Task are performed against an Orka environment.
   params:
     - name: base-image
       type: string
       description: The Orka base image to use for the VM config.
+    - name: orka-image
+      type: string
+      description: |
+        The name of the docker image which runs the task step.
+      default: docker.io/macstadium/orka-tekton-runner:2020-10-23-a93757dc-0.1@sha256:e8ed3370dcb91cdb8bcd4e9a7e9f6652879d80acdab9644cda69a98cd8c93339
     - name: cpu-count
       type: string
       description: |
@@ -85,11 +104,11 @@ spec:
       description: |
         The name of the key in the VM name config map, which stores the name of the generated VM configuration.
       default: vm-name
-  results:
-    - name: vm-name
   steps:
-    - name: initialize
-      image: macstadium/orka-tekton-runner:master
+    - name: orka-init
+      image: "$(params.orka-image)"
+      securityContext:
+        privileged: true
       env:
         - name: ORKA_API
           valueFrom:

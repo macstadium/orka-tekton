@@ -2,7 +2,7 @@
 set -u
 
 SCRIPT=$1
-BUILD_SCRIPT=/workspace/build-script
+BUILD_SCRIPT=build-script
 
 # If script does not start with shebang, prepend it
 [[ ! $(head -c2 $SCRIPT) == \#! ]] && cat > $BUILD_SCRIPT << EOF

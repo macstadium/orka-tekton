@@ -3,11 +3,29 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: orka-full
+  labels:
+    app.kubernetes.io/version: "0.1"
+  annotations:
+    tekton.dev/categories: Cloud, Kubernetes
+    tekton.dev/pipelines.minVersion: "0.16.0"
+    tekton.dev/platforms: "linux/amd64"
 spec:
+  description: >-
+    With this Task, you can use your Orka environment
+    to run macOS builds and macOS-related testing from your Tekton pipelines.
+
+    This Task creates a VM template with the specified configuration,
+    deploys a VM instance from it, and then cleans up the environment.
+    All operations in this `Task` are performed against an Orka environment.
   params:
     - name: base-image
       type: string
       description: The Orka base image to use for the VM config.
+    - name: orka-image
+      type: string
+      description: |
+        The name of the docker image which runs the task step.
+      default: docker.io/macstadium/orka-tekton-runner:2020-10-23-a93757dc-0.1@sha256:e8ed3370dcb91cdb8bcd4e9a7e9f6652879d80acdab9644cda69a98cd8c93339
     - name: cpu-count
       type: string
       description: |
@@ -104,9 +122,18 @@ spec:
         If ssh-key is true, this parameter should specify the name of the key in
         the VM SSH credentials secret that holds the private SSH key.
       default: password
+    - name: user-home
+      type: string
+      default: /tekton/home
+      description: Absolute path to the user's home directory.
+  stepTemplate:
+    env:
+      - name: HOME
+        value: $(params.user-home)
+    workingDir: /workspace
   steps:
     - name: copy-script
-      image: macstadium/orka-tekton-runner:master
+      image: $(params.orka-image)
       script: |
         #!/bin/sh
         SCRIPT=$(mktemp)
@@ -116,7 +143,9 @@ spec:
         EOF
         copy-script $SCRIPT
     - name: build
-      image: macstadium/orka-tekton-runner:master
+      image: $(params.orka-image)
+      securityContext:
+        privileged: true
       env:
         - name: ORKA_API
           valueFrom:
@@ -179,6 +208,6 @@ spec:
         items:
           - key: $(params.ssh-password-key)
             path: $(params.ssh-password-key)
-            mode: 0400
+            mode: 256
   workspaces:
     - name: orka
