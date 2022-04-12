@@ -3,11 +3,14 @@ set -e
 
 CURL_FLAGS='--location --fail'
 
-REQUEST_DATA="\"orka_vm_name\": \"$VM_NAME\""
+REQUEST_DATA="\"orka_vm_name\": \"$VM_NAME\",
+    \"gpu_passthrough\": $GPU_PASSTHROUGH"
+
 
 # Add vm_metadata if passed
 if [ -n "$VM_METADATA" ]; then
-  REQUEST_DATA="$REQUEST_DATA, \"vm_metadata\": $VM_METADATA"
+  REQUEST_DATA="$REQUEST_DATA,
+    \"vm_metadata\": $VM_METADATA"
 fi
 
 # Deploy VM

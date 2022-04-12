@@ -29,7 +29,6 @@ REQUEST_DATA="\"orka_vm_name\": \"$VM_NAME\",
     \"orka_cpu_core\": $CPU_COUNT,
     \"vcpu_count\": $VCPU_COUNT,
     \"vnc_console\": $VNC_CONSOLE,
-    \"gpu_passthrough\": $GPU_PASSTHROUGH,
     \"tag\": \"$TAG\",
     \"tag_required\": $TAG_REQUIRED,
     \"scheduler\": \"$SCHEDULER\""

@@ -4,7 +4,7 @@ kind: Task
 metadata:
   name: orka-init
   labels:
-    app.kubernetes.io/version: "0.1"
+    app.kubernetes.io/version: "master"
   annotations:
     tekton.dev/categories: Cloud, Kubernetes
     tekton.dev/pipelines.minVersion: "0.16.0"
@@ -26,7 +26,7 @@ spec:
       type: string
       description: |
         The name of the docker image which runs the task step.
-      default: docker.io/macstadium/orka-tekton-runner:2020-10-23-a93757dc-0.1@sha256:e8ed3370dcb91cdb8bcd4e9a7e9f6652879d80acdab9644cda69a98cd8c93339
+      default: docker.io/macstaium/orka-tekton-runner:master
     - name: cpu-count
       type: string
       description: |
@@ -42,10 +42,6 @@ spec:
       type: string
       description: Enables or disables VNC for the VM.
       default: "true"
-    - name: vm-metadata
-      type: string
-      description: "Inject custom metadata to the VM. You need to provide the metadata in format: {\"items\": [{\"key\": \"\", \"value\": \"\"}]}"
-      default: ""
     - name: system-serial
       type: string
       description: "Assign an owned macOS system serial number to the VM. You need to provide the systemSerial in format: {{systemSerial}}"
@@ -53,10 +49,6 @@ spec:
     - name: io-boost
       type: string
       description: Enables or disables IO performance improvements for the VM.
-      default: "false"
-    - name: gpu-passthrough
-      type: string
-      description: Enables or disables GPU passthrough for the VM.
       default: "false"
     - name: tag
       type: string
@@ -123,12 +115,8 @@ spec:
           value: $(params.vcpu-count)
         - name: VNC_CONSOLE
           value: $(params.vnc-console)
-        - name: VM_METADATA
-          value: $(params.vm-metadata)
         - name: SYSTEM_SERIAL
           value: $(params.system-serial)
-        - name: GPU_PASSTHROUGH
-          value: $(params.gpu-passthrough)
         - name: TAG
           value: $(params.tag)
         - name: TAG_REQUIRED
