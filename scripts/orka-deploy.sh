@@ -9,8 +9,9 @@ REQUEST_DATA="\"orka_vm_name\": \"$VM_NAME\",
 
 # Add vm_metadata if passed
 if [ -n "$VM_METADATA" ]; then
+  VM_METADATA_JSON=$(echo $VM_METADATA | yq r -jP -)
   REQUEST_DATA="$REQUEST_DATA,
-    \"vm_metadata\": $VM_METADATA"
+    \"vm_metadata\": $VM_METADATA_JSON"
 fi
 
 # Deploy VM
