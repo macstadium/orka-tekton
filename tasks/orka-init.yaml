@@ -44,7 +44,7 @@ spec:
       default: "true"
     - name: system-serial
       type: string
-      description: "Assign an owned macOS system serial number to the VM. You need to provide the systemSerial in format: {{systemSerial}}"
+      description: "Assign an owned macOS system serial number to the VM."
       default: ""
     - name: io-boost
       type: string

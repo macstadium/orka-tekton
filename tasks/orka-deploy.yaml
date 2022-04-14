@@ -77,7 +77,7 @@ spec:
       default: password
     - name: vm-metadata
       type: string
-      description: "Inject custom metadata to the VM. You need to provide the metadata in format: {\"items\": [{\"key\": \"\", \"value\": \"\"}]}"
+      description: "Inject custom metadata to the VM. You need to provide the metadata in format: `items: [{ key: testKey, value: testValue }]`"
       default: ""
     - name: gpu-passthrough
       type: string
