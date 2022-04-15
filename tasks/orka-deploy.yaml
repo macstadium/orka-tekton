@@ -81,7 +81,7 @@ spec:
       default: ""
     - name: gpu-passthrough
       type: string
-      description: Enables or disables GPU passthrough for the VM.
+      description: Enables or disables GPU passthrough for the VM (on Intel nodes only)..
       default: "false"
     - name: orka-token-secret
       type: string

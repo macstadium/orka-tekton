@@ -44,7 +44,7 @@ spec:
       default: "true"
     - name: system-serial
       type: string
-      description: "Assign an owned macOS system serial number to the VM."
+      description: "Assign an owned macOS system serial number to the VM (on Intel nodes only)."
       default: ""
     - name: io-boost
       type: string

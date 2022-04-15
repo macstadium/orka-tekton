@@ -43,11 +43,11 @@ spec:
       default: "false"
     - name: vm-metadata
       type: string
-      description: "Inject custom metadata to the VM. You need to provide the metadata in format: `items: [{ key: testKey, value: testValue }]`"
+      description: "Inject custom metadata to the VM (on Intel nodes only). You need to provide the metadata in format: `items: [{ key: testKey, value: testValue }]`"
       default: ""
     - name: system-serial
       type: string
-      description: "Assign an owned macOS system serial number to the VM."
+      description: "Assign an owned macOS system serial number to the VM (on Intel nodes only)."
       default: ""
     - name: gpu-passthrough
       type: string
