@@ -1,0 +1,33 @@
+# ###
+# This example shows how to use the orka-full Task to create a single macOS VM
+# on a specified tagged node. A node must be tagged with `test-tag` prior to
+# running this task. Set `tag-required` to true if that's the only node you desire
+# to deploy on. Otherwise the VM will be deployed on any available node. Refer to 
+# (https://www.macstadium.com/blog/orka-node-tags---deploying-vms-on-specific-nodes)
+# for more details.
+# The script provided in the params will be executed inside the VM.
+#
+# You will need to have a secret containing the Orka credentials as well as a
+# secret containing the VM SSH credentials as described in the README.
+# ###
+---
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  name: target-tagged-node
+spec:
+  taskRef:
+    name: orka-full
+  params:
+    - name: base-image
+      value: catalina-ssh-30G.img
+    - name: tag
+      value: "test-tag"
+    - name: tag-required
+      value: "false"  
+    - name: script
+      value: |
+        echo "Deployed on tagged node"
+  workspaces:
+    - name: orka
+      emptyDir: {}

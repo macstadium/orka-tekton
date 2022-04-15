@@ -1,0 +1,29 @@
+# ###
+# This example shows how to use the orka-full Task to create a single macOS VM
+# with an assigned system serial number and custom vm-metadata.
+# The script provided in the params will be executed inside the VM.
+#
+# You will need to have a secret containing the Orka credentials as well as a
+# secret containing the VM SSH credentials as described in the README.
+# ###
+---
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  name: inject-vm-data
+spec:
+  taskRef:
+    name: orka-full
+  params:
+    - name: base-image
+      value: catalina-ssh-30G.img
+    - name: vm-metadata
+      value: "items: [{ key: testKey, value: testValue }]"
+    - name: system-serial
+      value: "C02D7AY7MD6N"
+    - name: script
+      value: |
+        ioreg -c IOPlatformExpertDevice -d 2 | grep IOPlatformSerialNumber
+  workspaces:
+    - name: orka
+      emptyDir: {}
