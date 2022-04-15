@@ -39,14 +39,14 @@ spec:
       description: |
         The name of the key in the VM name config map, which stores the name of the generated VM configuration.
       default: vm-name
-    - name: orka-image
+    - name: docker-image
       type: string
       description: |
         The name of the docker image which runs the task step.
       default: docker.io/macstadium/orka-tekton-runner:master
   steps:
     - name: teardown
-      image: $(params.orka-image)
+      image: $(params.docker-image)
       securityContext:
         privileged: true
       env:

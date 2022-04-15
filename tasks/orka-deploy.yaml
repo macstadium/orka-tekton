@@ -47,7 +47,7 @@ spec:
 
         Set to false if you intend to clean up VMs after use manually.
       default: "true"
-    - name: orka-image
+    - name: docker-image
       type: string
       description: |
         The name of the docker image which runs the task step.
@@ -114,7 +114,7 @@ spec:
     workingDir: /workspace
   steps:
     - name: copy-script
-      image: $(params.orka-image)
+      image: $(params.docker-image)
       script: |
         #!/bin/sh
         SCRIPT=$(mktemp)
@@ -124,7 +124,7 @@ spec:
         EOF
         copy-script $SCRIPT
     - name: build
-      image: $(params.orka-image)
+      image: $(params.docker-image)
       env:
         - name: ORKA_API
           valueFrom:
