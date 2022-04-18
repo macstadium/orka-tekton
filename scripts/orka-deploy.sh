@@ -6,10 +6,14 @@ CURL_FLAGS='--location --fail'
 REQUEST_DATA="\"orka_vm_name\": \"$VM_NAME\",
     \"gpu_passthrough\": $GPU_PASSTHROUGH"
 
+# Add system_serial if passed
+if [ -n "$SYSTEM_SERIAL" ]; then
+  REQUEST_DATA="$REQUEST_DATA, \"system_serial\": \"$SYSTEM_SERIAL\""
+fi
 
 # Add vm_metadata if passed
 if [ -n "$VM_METADATA" ]; then
-  VM_METADATA_JSON=$(echo $VM_METADATA | yq r -jP -)
+  VM_METADATA_JSON=$(echo "items: ${VM_METADATA}" | yq r -jP -)
   REQUEST_DATA="$REQUEST_DATA,
     \"vm_metadata\": $VM_METADATA_JSON"
 fi

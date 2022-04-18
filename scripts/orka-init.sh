@@ -33,11 +33,6 @@ REQUEST_DATA="\"orka_vm_name\": \"$VM_NAME\",
     \"tag_required\": $TAG_REQUIRED,
     \"scheduler\": \"$SCHEDULER\""
 
-# Add system_serial if passed
-if [ -n "$SYSTEM_SERIAL" ]; then
-  REQUEST_DATA="$REQUEST_DATA, \"system_serial\": \"$SYSTEM_SERIAL\""
-fi
-
 curl $CURL_FLAGS --request POST "${ORKA_API}/resources/vm/create" \
   --header 'Content-Type: application/json' \
   --header "Authorization: Bearer $TOKEN" \
