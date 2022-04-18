@@ -253,9 +253,9 @@ Use the following parameters to customize the `Tasks`.
 | `cpu-count` | The number of CPU cores to dedicate for the VM. Must be 3, 4, 6, 8, 12, or 24. | 3 |
 | `vcpu-count` | The number of vCPUs for the VM. Must equal the number of CPUs, when CPU is less than or equal to 3. Otherwise, must equal half of or exactly the number of CPUs specified. | 3 |
 | `vnc-console` | Enables or disables VNC for the VM. | false |
-| `vm-metadata` | Inject custom metadata to the VM. You need to provide the metadata in format: `items: [{ key: testKey, value: testValue }]`. | --- |
-| `system-serial` | Assign an owned macOS system serial number to the VM (on Intel nodes only). | --- |
-| `gpu-passthrough` | Enables or disables GPU passthrough for the VM (on Intel nodes only). | false |
+| `vm-metadata` | Inject custom metadata to the VM (on Intel nodes only). You need to provide the metadata in format:`[{ key: firstKey, value: firstValue }, { key: secondKey, value: secondValue }]`. Refer to [`inject-vm-metadata`](samples/inject-vm-metadata.yaml) example. | --- |
+| `system-serial` | Assign an owned macOS system serial number to the VM (on Intel nodes only). Refer to [`inject-system-serial`](samples/inject-system-serial.yaml) example. | --- |
+| `gpu-passthrough` | Enables or disables GPU passthrough for the VM (on Intel nodes only). Refer to [`gpu-passthrough`](samples/gpu-passthrough.yaml) example. | false |
 | `tag` | When specified, the VM is preferred to be deployed to a node marked with this tag. | --- |
 | `tag-required` | VM is required to be deployed to a node marked with tag specified above. | false |
 | `scheduler` | When set to 'most-allocated', the deployed VM will be scheduled to nodes having most of their resources allocated. | default |

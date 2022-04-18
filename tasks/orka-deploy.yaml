@@ -75,13 +75,22 @@ spec:
         If ssh-key is true, this parameter should specify the name of the key in
         the VM SSH credentials secret that holds the private SSH key.
       default: password
+    - name: system-serial
+      type: string
+      description: "Assign an owned macOS system serial number to the VM (on Intel nodes only)."
+      default: ""
     - name: vm-metadata
       type: string
-      description: "Inject custom metadata to the VM. You need to provide the metadata in format: `items: [{ key: testKey, value: testValue }]`"
+      description: |
+        "Inject custom metadata to the VM (on Intel nodes only). You need to provide the metadata in format:
+        [
+          { key: firstKey, value: firstValue },
+          { key: secondKey, value: secondsValue }
+        ]"
       default: ""
     - name: gpu-passthrough
       type: string
-      description: Enables or disables GPU passthrough for the VM (on Intel nodes only)..
+      description: Enables or disables GPU passthrough for the VM (on Intel nodes only).
       default: "false"
     - name: orka-token-secret
       type: string
@@ -146,6 +155,8 @@ spec:
           value: /etc/$(params.ssh-secret)/$(params.ssh-password-key)
         - name: SSH_KEY
           value: $(params.ssh-key)
+        - name: SYSTEM_SERIAL
+          value: $(params.system-serial)
         - name: VM_METADATA
           value: $(params.vm-metadata)
         - name: GPU_PASSTHROUGH

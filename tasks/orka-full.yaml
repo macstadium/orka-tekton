@@ -43,7 +43,12 @@ spec:
       default: "false"
     - name: vm-metadata
       type: string
-      description: "Inject custom metadata to the VM (on Intel nodes only). You need to provide the metadata in format: `items: [{ key: testKey, value: testValue }]`"
+      description: |
+        "Inject custom metadata to the VM (on Intel nodes only). You need to provide the metadata in format:
+        [
+          { key: firstKey, value: firstValue },
+          { key: secondKey, value: secondsValue }
+        ]"
       default: ""
     - name: system-serial
       type: string
@@ -51,7 +56,7 @@ spec:
       default: ""
     - name: gpu-passthrough
       type: string
-      description: Enables or disables GPU passthrough for the VM.
+      description: Enables or disables GPU passthrough for the VM (on Intel nodes only).
       default: "false"
     - name: tag
       type: string

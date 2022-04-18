@@ -42,10 +42,6 @@ spec:
       type: string
       description: Enables or disables VNC for the VM.
       default: "true"
-    - name: system-serial
-      type: string
-      description: "Assign an owned macOS system serial number to the VM (on Intel nodes only)."
-      default: ""
     - name: io-boost
       type: string
       description: Enables or disables IO performance improvements for the VM.
@@ -115,8 +111,6 @@ spec:
           value: $(params.vcpu-count)
         - name: VNC_CONSOLE
           value: $(params.vnc-console)
-        - name: SYSTEM_SERIAL
-          value: $(params.system-serial)
         - name: TAG
           value: $(params.tag)
         - name: TAG_REQUIRED
