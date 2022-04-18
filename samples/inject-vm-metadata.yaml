@@ -1,6 +1,7 @@
 # ###
 # This example shows how to use the orka-full Task to create a single macOS VM
-# that uses the host's GPU. GPU Passthrough needs to be enabled in the Orka cluster.
+# with custom vm-metadata. For info on retrieving the VM metadata, refer to
+# https://orkadocs.macstadium.com/docs/retrieving-vm-metadata
 # The script provided in the params will be executed inside the VM.
 #
 # You will need to have a secret containing the Orka credentials as well as a
@@ -10,20 +11,23 @@
 apiVersion: tekton.dev/v1beta1
 kind: TaskRun
 metadata:
-  name: gpu-passthrough
+  name: inject-vm-metadata
 spec:
   taskRef:
     name: orka-full
   params:
     - name: base-image
       value: 90GBigSurSSH.img
-    - name: copy-build
-      value: "false"
-    - name: gpu-passthrough
-      value: "true"
+    - name: vm-metadata
+      value: |
+        [
+          { key: firstKey, value: firstValue },
+          { key: secondKey, value: secondValue }
+        ]
     - name: script
       value: |
-        sleep 5 && system_profiler -json SPDisplaysDataType
+        echo "$(curl http://169.254.169.254/metadata/firstKey)"
+        echo "$(curl http://169.254.169.254/metadata/secondKey)"
   workspaces:
     - name: orka
       emptyDir: {}

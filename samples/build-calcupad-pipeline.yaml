@@ -11,6 +11,9 @@
 # which can be consumed by a later Task in the Pipeline, or simply
 # saved to a cloud storage bucket.
 #
+# You will first need to install Xcode on the VM and commit or save an
+# image using `orka image commit` or `orka image save` and specify that base image.
+#
 # ###
 # Install the git-clone task:
 # kubectl apply -f https://raw.githubusercontent.com/tektoncd/catalog/master/task/git-clone/0.2/git-clone.yaml
@@ -66,7 +69,7 @@ spec:
           - name: source
         steps:
           - name: list
-            image: macstadium/orka-tekton-runner:master
+            image: docker.io/macstadium/orka-tekton-runner:master
             script: |
               #!/bin/sh
               set -ex

@@ -20,7 +20,7 @@ spec:
         name: orka-init
       params:
         - name: base-image
-          value: catalina-ssh-30G.img
+          value: 90GBigSurSSH.img
     - name: diskinfo
       retries: 1
       taskRef:
