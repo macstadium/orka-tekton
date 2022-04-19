@@ -18,8 +18,6 @@ spec:
   params:
     - name: base-image
       value: 90GBigSurSSH.img
-    - name: docker-image
-      value: docker.io/jkomoda/orka-tekton-runner:latest
     - name: vm-metadata
       value: |
         [
