@@ -1,5 +1,6 @@
 # ###
-# This example shows how to use the orka-full Task to create a single macOS VM.
+# This example shows how to use the orka-full Task to create a single macOS VM
+# with an assigned system serial number (fake serial number in this example).
 # The script provided in the params will be executed inside the VM.
 #
 # You will need to have a secret containing the Orka credentials as well as a
@@ -9,20 +10,18 @@
 apiVersion: tekton.dev/v1beta1
 kind: TaskRun
 metadata:
-  name: dump-disk-info
+  name: inject-system-serial
 spec:
   taskRef:
     name: orka-full
   params:
     - name: base-image
-      value: 90GBMontereySSH.orkasi
-    - name: copy-build
-      value: "false"
+      value: 90GBigSurSSH.img
+    - name: system-serial
+      value: "ABCDE12345"
     - name: script
       value: |
-        DISK_INFO=$(mktemp)
-        diskutil info / > $DISK_INFO
-        cat $DISK_INFO
+        ioreg -c IOPlatformExpertDevice -d 2 | grep IOPlatformSerialNumber
   workspaces:
     - name: orka
       emptyDir: {}

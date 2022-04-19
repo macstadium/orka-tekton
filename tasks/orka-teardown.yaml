@@ -3,7 +3,21 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: orka-teardown
+  labels:
+    app.kubernetes.io/version: "master"
+  annotations:
+    tekton.dev/categories: Cloud, Kubernetes
+    tekton.dev/pipelines.minVersion: "0.16.0"
+    tekton.dev/tags: "orka, macstadium, teardown, cleanup"
+    tekton.dev/displayName: "MacStadium Orka Teardown"
+    tekton.dev/platforms: "linux/amd64"
 spec:
+  description: >-
+    With this set of Tasks, you can use your Orka environment
+    to run macOS builds and macOS-related testing from your Tekton pipelines.
+
+    This Task cleans up the Orka environment after your workload completes.
+    This Task deletes the VM instances deployed with `orka-deploy` and their related templates.
   params:
     - name: orka-token-secret
       type: string
@@ -25,9 +39,16 @@ spec:
       description: |
         The name of the key in the VM name config map, which stores the name of the generated VM configuration.
       default: vm-name
+    - name: docker-image
+      type: string
+      description: |
+        The name of the docker image which runs the task step.
+      default: docker.io/macstadium/orka-tekton-runner:master
   steps:
     - name: teardown
-      image: macstadium/orka-tekton-runner:master
+      image: $(params.docker-image)
+      securityContext:
+        privileged: true
       env:
         - name: ORKA_API
           valueFrom:

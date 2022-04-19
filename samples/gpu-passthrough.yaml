@@ -1,5 +1,6 @@
 # ###
-# This example shows how to use the orka-full Task to create a single macOS VM.
+# This example shows how to use the orka-full Task to create a single macOS VM
+# that uses the host's GPU. GPU Passthrough needs to be enabled in the Orka cluster.
 # The script provided in the params will be executed inside the VM.
 #
 # You will need to have a secret containing the Orka credentials as well as a
@@ -9,20 +10,20 @@
 apiVersion: tekton.dev/v1beta1
 kind: TaskRun
 metadata:
-  name: dump-disk-info
+  name: gpu-passthrough
 spec:
   taskRef:
     name: orka-full
   params:
     - name: base-image
-      value: 90GBMontereySSH.orkasi
+      value: 90GBigSurSSH.img
     - name: copy-build
       value: "false"
+    - name: gpu-passthrough
+      value: "true"
     - name: script
       value: |
-        DISK_INFO=$(mktemp)
-        diskutil info / > $DISK_INFO
-        cat $DISK_INFO
+        sleep 5 && system_profiler -json SPDisplaysDataType
   workspaces:
     - name: orka
       emptyDir: {}

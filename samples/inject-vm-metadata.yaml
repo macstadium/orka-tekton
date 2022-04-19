@@ -1,0 +1,33 @@
+# ###
+# This example shows how to use the orka-full Task to create a single macOS VM
+# with custom vm-metadata. For info on retrieving the VM metadata, refer to
+# https://orkadocs.macstadium.com/docs/retrieving-vm-metadata
+# The script provided in the params will be executed inside the VM.
+#
+# You will need to have a secret containing the Orka credentials as well as a
+# secret containing the VM SSH credentials as described in the README.
+# ###
+---
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  name: inject-vm-metadata
+spec:
+  taskRef:
+    name: orka-full
+  params:
+    - name: base-image
+      value: 90GBigSurSSH.img
+    - name: vm-metadata
+      value: |
+        [
+          { key: firstKey, value: firstValue },
+          { key: secondKey, value: secondValue }
+        ]
+    - name: script
+      value: |
+        curl -w "\n" http://169.254.169.254/metadata/firstKey
+        curl -w "\n" http://169.254.169.254/metadata/secondKey
+  workspaces:
+    - name: orka
+      emptyDir: {}

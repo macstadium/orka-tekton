@@ -3,11 +3,29 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: orka-full
+  labels:
+    app.kubernetes.io/version: "master"
+  annotations:
+    tekton.dev/categories: Cloud, Kubernetes
+    tekton.dev/pipelines.minVersion: "0.16.0"
+    tekton.dev/platforms: "linux/amd64"
 spec:
+  description: >-
+    With this Task, you can use your Orka environment
+    to run macOS builds and macOS-related testing from your Tekton pipelines.
+
+    This Task creates a VM template with the specified configuration,
+    deploys a VM instance from it, and then cleans up the environment.
+    All operations in this `Task` are performed against an Orka environment.
   params:
     - name: base-image
       type: string
       description: The Orka base image to use for the VM config.
+    - name: docker-image
+      type: string
+      description: |
+        The name of the docker image which runs the task step.
+      default: docker.io/macstadium/orka-tekton-runner:master
     - name: cpu-count
       type: string
       description: |
@@ -23,6 +41,35 @@ spec:
       type: string
       description: Enables or disables VNC for the VM.
       default: "false"
+    - name: vm-metadata
+      type: string
+      description: |
+        "Inject custom metadata to the VM (on Intel nodes only). You need to provide the metadata in format:
+        [
+          { key: firstKey, value: firstValue },
+          { key: secondKey, value: secondsValue }
+        ]"
+      default: ""
+    - name: system-serial
+      type: string
+      description: "Assign an owned macOS system serial number to the VM (on Intel nodes only)."
+      default: ""
+    - name: gpu-passthrough
+      type: string
+      description: Enables or disables GPU passthrough for the VM (on Intel nodes only).
+      default: "false"
+    - name: tag
+      type: string
+      description: When specified, the VM is preferred to be deployed to a node marked with this tag.
+      default: ""
+    - name: tag-required
+      type: string
+      description: VM is required to be deployed to a node marked with tag specified above.
+      default: "false"
+    - name: scheduler
+      type: string
+      description: "When set to 'most-allocated', the deployed VM will be scheduled to nodes having most of their resources allocated."
+      default: "default"
     - name: script
       type: string
       description: |
@@ -80,9 +127,18 @@ spec:
         If ssh-key is true, this parameter should specify the name of the key in
         the VM SSH credentials secret that holds the private SSH key.
       default: password
+    - name: user-home
+      type: string
+      default: /tekton/home
+      description: Absolute path to the user's home directory.
+  stepTemplate:
+    env:
+      - name: HOME
+        value: $(params.user-home)
+    workingDir: /workspace
   steps:
     - name: copy-script
-      image: macstadium/orka-tekton-runner:master
+      image: $(params.docker-image)
       script: |
         #!/bin/sh
         SCRIPT=$(mktemp)
@@ -92,7 +148,9 @@ spec:
         EOF
         copy-script $SCRIPT
     - name: build
-      image: macstadium/orka-tekton-runner:master
+      image: $(params.docker-image)
+      securityContext:
+        privileged: true
       env:
         - name: ORKA_API
           valueFrom:
@@ -107,6 +165,18 @@ spec:
           value: $(params.vcpu-count)
         - name: VNC_CONSOLE
           value: $(params.vnc-console)
+        - name: VM_METADATA
+          value: $(params.vm-metadata)
+        - name: SYSTEM_SERIAL
+          value: $(params.system-serial)
+        - name: GPU_PASSTHROUGH
+          value: $(params.gpu-passthrough)
+        - name: TAG
+          value: $(params.tag)
+        - name: TAG_REQUIRED
+          value: $(params.tag-required)
+        - name: SCHEDULER
+          value: $(params.scheduler)
         - name: VERBOSE
           value: $(params.verbose)
         - name: COPY_BUILD
@@ -143,6 +213,6 @@ spec:
         items:
           - key: $(params.ssh-password-key)
             path: $(params.ssh-password-key)
-            mode: 0400
+            mode: 256
   workspaces:
     - name: orka

@@ -3,11 +3,30 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: orka-init
+  labels:
+    app.kubernetes.io/version: "master"
+  annotations:
+    tekton.dev/categories: Cloud, Kubernetes
+    tekton.dev/pipelines.minVersion: "0.16.0"
+    tekton.dev/tags: "orka, macstadium, init, setup"
+    tekton.dev/displayName: "MacStadium Orka Init"
+    tekton.dev/platforms: "linux/amd64"
 spec:
+  description: >-
+    With this set of Tasks, you can use your Orka environment
+    to run macOS builds and macOS-related testing from your Tekton pipelines.
+
+    This Task creates a VM template with the specified configuration.
+    All operations in this Task are performed against an Orka environment.
   params:
     - name: base-image
       type: string
       description: The Orka base image to use for the VM config.
+    - name: docker-image
+      type: string
+      description: |
+        The name of the docker image which runs the task step.
+      default: docker.io/macstadium/orka-tekton-runner:master
     - name: cpu-count
       type: string
       description: |
@@ -23,6 +42,22 @@ spec:
       type: string
       description: Enables or disables VNC for the VM.
       default: "true"
+    - name: io-boost
+      type: string
+      description: Enables or disables IO performance improvements for the VM.
+      default: "false"
+    - name: tag
+      type: string
+      description: When specified, the VM is preferred to be deployed to a node marked with this tag.
+      default: ""
+    - name: tag-required
+      type: string
+      description: VM is required to be deployed to a node marked with tag specified above.
+      default: "false"
+    - name: scheduler
+      type: string
+      description: "When set to 'most-allocated', the deployed VM will be scheduled to nodes having most of their resources allocated."
+      default: "default"
     - name: orka-creds-secret
       type: string
       description: The name of the secret holding your Orka credentials.
@@ -57,11 +92,11 @@ spec:
       description: |
         The name of the key in the VM name config map, which stores the name of the generated VM configuration.
       default: vm-name
-  results:
-    - name: vm-name
   steps:
-    - name: init
-      image: macstadium/orka-tekton-runner:master
+    - name: orka-init
+      image: "$(params.docker-image)"
+      securityContext:
+        privileged: true
       env:
         - name: ORKA_API
           valueFrom:
@@ -76,6 +111,12 @@ spec:
           value: $(params.vcpu-count)
         - name: VNC_CONSOLE
           value: $(params.vnc-console)
+        - name: TAG
+          value: $(params.tag)
+        - name: TAG_REQUIRED
+          value: $(params.tag-required)
+        - name: SCHEDULER
+          value: $(params.scheduler)
         - name: SVC_EMAIL
           valueFrom:
             secretKeyRef:

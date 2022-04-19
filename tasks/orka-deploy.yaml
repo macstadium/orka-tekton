@@ -3,7 +3,21 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: orka-deploy
+  labels:
+    app.kubernetes.io/version: "master"
+  annotations:
+    tekton.dev/categories: Deployment
+    tekton.dev/pipelines.minVersion: "0.16.0"
+    tekton.dev/tags: "orka, macstadium, deploy, build"
+    tekton.dev/displayName: "MacStadium Orka Deploy"
+    tekton.dev/platforms: "linux/amd64"
 spec:
+  description: >-
+    With this set of Tasks, you can use your Orka environment
+    to run macOS builds and macOS-related testing from your Tekton pipelines.
+
+    This Task deploys a VM instance from a specified VM template.
+    Usually, you would use the VM template created with `orka-init`.
   params:
     - name: script
       type: string
@@ -33,6 +47,11 @@ spec:
 
         Set to false if you intend to clean up VMs after use manually.
       default: "true"
+    - name: docker-image
+      type: string
+      description: |
+        The name of the docker image which runs the task step.
+      default: docker.io/macstadium/orka-tekton-runner:master
     - name: ssh-key
       type: string
       description: |
@@ -56,6 +75,23 @@ spec:
         If ssh-key is true, this parameter should specify the name of the key in
         the VM SSH credentials secret that holds the private SSH key.
       default: password
+    - name: system-serial
+      type: string
+      description: "Assign an owned macOS system serial number to the VM (on Intel nodes only)."
+      default: ""
+    - name: vm-metadata
+      type: string
+      description: |
+        "Inject custom metadata to the VM (on Intel nodes only). You need to provide the metadata in format:
+        [
+          { key: firstKey, value: firstValue },
+          { key: secondKey, value: secondsValue }
+        ]"
+      default: ""
+    - name: gpu-passthrough
+      type: string
+      description: Enables or disables GPU passthrough for the VM (on Intel nodes only).
+      default: "false"
     - name: orka-token-secret
       type: string
       description: |
@@ -76,9 +112,18 @@ spec:
       description: |
         The name of the key in the VM name config map, which stores the name of the generated VM configuration.
       default: vm-name
+    - name: user-home
+      type: string
+      default: /tekton/home
+      description: Absolute path to the user's home directory.
+  stepTemplate:
+    env:
+      - name: HOME
+        value: $(params.user-home)
+    workingDir: /workspace
   steps:
     - name: copy-script
-      image: macstadium/orka-tekton-runner:master
+      image: $(params.docker-image)
       script: |
         #!/bin/sh
         SCRIPT=$(mktemp)
@@ -88,7 +133,7 @@ spec:
         EOF
         copy-script $SCRIPT
     - name: build
-      image: macstadium/orka-tekton-runner:master
+      image: $(params.docker-image)
       env:
         - name: ORKA_API
           valueFrom:
@@ -110,6 +155,12 @@ spec:
           value: /etc/$(params.ssh-secret)/$(params.ssh-password-key)
         - name: SSH_KEY
           value: $(params.ssh-key)
+        - name: SYSTEM_SERIAL
+          value: $(params.system-serial)
+        - name: VM_METADATA
+          value: $(params.vm-metadata)
+        - name: GPU_PASSTHROUGH
+          value: $(params.gpu-passthrough)
         - name: TOKEN
           valueFrom:
             secretKeyRef:
@@ -135,6 +186,6 @@ spec:
         items:
           - key: $(params.ssh-password-key)
             path: $(params.ssh-password-key)
-            mode: 0400
+            mode: 256
   workspaces:
     - name: orka
