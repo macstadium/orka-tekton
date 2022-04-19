@@ -1,4 +1,4 @@
-FROM alpine:3.13
+FROM alpine:3.12
 
 RUN apk add \
   --update \
@@ -8,8 +8,7 @@ RUN apk add \
   openssh \
   openssl \
   rsync \
-  sshpass \
-  yq
+  sshpass
 RUN curl \
   --output /usr/bin/kubectl \
   --location https://storage.googleapis.com/kubernetes-release/release/v1.18.8/bin/linux/amd64/kubectl \

@@ -21,13 +21,13 @@ spec:
     - name: vm-metadata
       value: |
         [
-          { key: firstKey, value: firstValue },
-          { key: secondKey, value: secondValue }
+          { "key": "firstKey", "value": "firstValue" },
+          { "key": "secondKey", "value": "secondValue" }
         ]
     - name: script
       value: |
-        echo "$(curl http://169.254.169.254/metadata/firstKey)"
-        echo "$(curl http://169.254.169.254/metadata/secondKey)"
+        curl -w "\n" http://169.254.169.254/metadata/firstKey
+        curl -w "\n" http://169.254.169.254/metadata/secondKey
   workspaces:
     - name: orka
       emptyDir: {}

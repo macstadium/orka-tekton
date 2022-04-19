@@ -17,8 +17,6 @@ spec:
   params:
     - name: base-image
       value: 90GBigSurSSH.img
-    - name: docker-image
-      value: docker.io/macstadium/orka-tekton-runner:jk-dev
     - name: system-serial
       value: "C02D7AY7MD6N"
     - name: script
