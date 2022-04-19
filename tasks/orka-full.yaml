@@ -46,8 +46,8 @@ spec:
       description: |
         "Inject custom metadata to the VM (on Intel nodes only). You need to provide the metadata in format:
         [
-          { key: firstKey, value: firstValue },
-          { key: secondKey, value: secondsValue }
+          { "key": "firstKey", "value": "firstValue" },
+          { "key": "secondKey", "value": "secondValue" }
         ]"
       default: ""
     - name: system-serial
