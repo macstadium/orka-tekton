@@ -1,6 +1,6 @@
 # ###
 # This example shows how to use the orka-full Task to create a single macOS VM
-# with an assigned system serial number.
+# with an assigned system serial number (fake serial number in this example).
 # The script provided in the params will be executed inside the VM.
 #
 # You will need to have a secret containing the Orka credentials as well as a
@@ -18,7 +18,7 @@ spec:
     - name: base-image
       value: 90GBigSurSSH.img
     - name: system-serial
-      value: "C02D7AY7MD6N"
+      value: "ABCDE12345"
     - name: script
       value: |
         ioreg -c IOPlatformExpertDevice -d 2 | grep IOPlatformSerialNumber
