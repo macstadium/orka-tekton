@@ -14,8 +14,7 @@ fi
 # Add vm_metadata if passed
 if [ -n "$VM_METADATA" ]; then
   VM_METADATA_JSON=$(echo "items: ${VM_METADATA}" | yq r -jP -)
-  REQUEST_DATA="$REQUEST_DATA,
-    \"vm_metadata\": $VM_METADATA_JSON"
+  REQUEST_DATA="$REQUEST_DATA, \"vm_metadata\": $VM_METADATA_JSON"
 fi
 
 # Deploy VM
