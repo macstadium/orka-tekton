@@ -7,7 +7,6 @@ on:
       - scripts/**
       - Dockerfile
     branches:
-      - jk/OK581-tekton_changes
       - master
       - releases/*
 
