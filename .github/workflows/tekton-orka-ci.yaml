@@ -33,4 +33,4 @@ jobs:
           else
             docker tag $IMAGE:$IMAGE_TAG $IMAGE:${GITHUB_REF##*/}
           fi
-          docker push $IMAGE
+          docker push $IMAGE -a
