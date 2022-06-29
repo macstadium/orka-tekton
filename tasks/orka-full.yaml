@@ -4,7 +4,7 @@ kind: Task
 metadata:
   name: orka-full
   labels:
-    app.kubernetes.io/version: "master"
+    app.kubernetes.io/version: "latest"
   annotations:
     tekton.dev/categories: Cloud, Kubernetes
     tekton.dev/pipelines.minVersion: "0.16.0"
@@ -25,7 +25,7 @@ spec:
       type: string
       description: |
         The name of the docker image which runs the task step.
-      default: docker.io/macstadium/orka-tekton-runner:master
+      default: ghcr.io/macstadium/orka-tekton-runner:latest
     - name: cpu-count
       type: string
       description: |
