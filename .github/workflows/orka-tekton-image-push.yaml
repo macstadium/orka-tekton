@@ -1,0 +1,52 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    paths:
+      - .github/workflows/orka-tekton-image-push.yaml
+      - scripts/**
+      - Dockerfile
+    branches:
+      - master
+      - releases/*
+
+env:
+  GHCR_REPO: ghcr.io/macstadium/orka-tekton-runner
+
+jobs:
+  push-image:
+    name: Push Docker Image to GitHub Packages
+    if: github.ref == 'refs/heads/master' || contains(github.ref, 'refs/heads/releases/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: Create Image Tags
+        id: create_tags
+        run: |
+          set -eux -o pipefail
+
+          DATE_TAG=$(date '+%Y-%m-%d')-$(git rev-parse --short=8 HEAD)
+
+          TAGS="$GHCR_REPO:$DATE_TAG"
+          if [[ $GITHUB_REF == refs/heads/master ]]; then
+            TAGS+=",$GHCR_REPO:latest"
+          else
+            TAGS+=",$GHCR_REPO:${GITHUB_REF##*/}-latest"
+          fi
+
+          echo ::set-output name=tags::${TAGS}
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push to GitHub Packages
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          tags: ${{ steps.create_tags.outputs.tags }}
+          push: true
