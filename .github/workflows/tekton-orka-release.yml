@@ -1,5 +1,8 @@
 name: Tekton Orka Release
 
+on:
+  workflow_dispatch:
+
 env:
   GHCR_REPO: ghcr.io/macstadium/orka-tekton-runner
 
