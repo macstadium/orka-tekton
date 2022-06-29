@@ -1,4 +1,4 @@
-name: Tekton Orka Release
+name: Orka Tekton Release
 
 on:
   workflow_dispatch:
@@ -35,15 +35,15 @@ jobs:
           docker tag $IMAGE $RELEASE_IMAGE
           docker push $RELEASE_IMAGE
 
-      # - name: Post slack message on failure
-      #   if: failure()
-      #   uses: 8398a7/action-slack@v3
-      #   with:
-      #     status: failure
-      #     mention: channel
-      #     if_mention: always
-      #     text: Unable to release Tekton Orka from ${{github.ref}} branch
-      #     fields: repo,commit,author,message,ref,workflow
-      #   env:
-      #     SLACK_WEBHOOK_URL: ${{secrets.SLACK_WEBHOOK_URL}}
-      #     MATRIX_CONTEXT: ${{toJson(matrix)}}
+      - name: Post slack message on failure
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          mention: channel
+          if_mention: always
+          text: Unable to release Tekton Orka from ${{github.ref}} branch
+          fields: repo,commit,author,message,ref,workflow
+        env:
+          SLACK_WEBHOOK_URL: ${{secrets.SLACK_WEBHOOK_URL}}
+          MATRIX_CONTEXT: ${{toJson(matrix)}}
