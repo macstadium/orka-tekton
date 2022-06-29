@@ -1,0 +1,46 @@
+name: Tekton Orka Release
+
+env:
+  GHCR_REPO: ghcr.io/macstadium/orka-tekton-runner
+
+jobs:
+  publish:
+    if: contains(github.ref, 'refs/heads/releases/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the source code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{github.ref}}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Release Tekton Orka package
+        run: |
+          set -eux -o pipefail
+
+          RELEASE_VERSION="${GITHUB_REF##*/}"
+          IMAGE="$GHCR_REPO:$RELEASE_VERSION-latest"
+          RELEASE_IMAGE="$GHCR_REPO:$RELEASE_VERSION"
+
+          docker pull $IMAGE
+          docker tag $IMAGE $RELEASE_IMAGE
+          docker push $RELEASE_IMAGE
+
+      # - name: Post slack message on failure
+      #   if: failure()
+      #   uses: 8398a7/action-slack@v3
+      #   with:
+      #     status: failure
+      #     mention: channel
+      #     if_mention: always
+      #     text: Unable to release Tekton Orka from ${{github.ref}} branch
+      #     fields: repo,commit,author,message,ref,workflow
+      #   env:
+      #     SLACK_WEBHOOK_URL: ${{secrets.SLACK_WEBHOOK_URL}}
+      #     MATRIX_CONTEXT: ${{toJson(matrix)}}
