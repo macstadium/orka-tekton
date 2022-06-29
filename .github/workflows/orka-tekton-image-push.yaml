@@ -9,6 +9,7 @@ on:
     branches:
       - master
       - releases/*
+  workflow_dispatch:
 
 env:
   GHCR_REPO: ghcr.io/macstadium/orka-tekton-runner
