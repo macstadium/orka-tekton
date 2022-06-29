@@ -24,7 +24,7 @@ With this set of `Tasks`, you can use your [Orka](https://www.macstadium.com/ork
 * You need a Kubernetes cluster with Tekton Pipelines v0.16.0 or later configured.
 * You need an Orka environment with the following components:
   * Orka 1.4.1 or later.
-  * [An Orka service endpoint](https://orkadocs.macstadium.com/docs/endpoint-faqs#whats-the-orka-service-endpoint) (IP or custom domain). Usually, `http://10.221.188.100`, `http://10.10.10.100` or `https://<custom-domain>`.
+  * [An Orka service endpoint](https://orkadocs.macstadium.com/docs/endpoint-faqs#whats-the-orka-service-endpoint) (IP or custom domain). Usually, `http://10.221.188.20`, `http://10.221.188.100` or `https://<custom-domain>`.
   * A dedicated Orka user with valid credentials (email & password). Create a new user or request one from your Orka administrator.
   * An SSH-enabled base image and the respective SSH credentials (email & password OR SSH key). Use an [existing base image](https://orkadocs.macstadium.com/docs/existing-images-upload-management) or [create your own](https://orkadocs.macstadium.com/docs/creating-an-ssh-enabled-image).
 * You need an active VPN connection between your Kubernetes cluster and Orka. Use a [VPN client](https://orkadocs.macstadium.com/docs/vpn-connect) for temporary access or create a [site-to-site VPN tunnel](https://orkadocs.macstadium.com/docs/aws-orka-connections) for permanent access.
@@ -32,6 +32,8 @@ With this set of `Tasks`, you can use your [Orka](https://www.macstadium.com/ork
 See also: [Using Orka, At a Glance](https://orkadocs.macstadium.com/docs/quick-start-introduction)
 
 See also: [GCP-MacStadium Site-to-Site VPN](https://docs.macstadium.com/docs/google-cloud-setup)
+
+> **NOTE:** Beginning with Orka 2.1.0, net new Orka clusters are configured with the Orka service endpoint as `http://10.221.188.20`. Existing clusters will continue to use the service endpoint as initially configured, typically ``http://10.221.188.100`.
 
 ## Installation
 
@@ -42,7 +44,7 @@ Before you can use these `Tasks` in Tekton pipelines, you need to install them a
 To install in the `default` namespace of your Kubernetes cluster, run the following command against your actual Orka API endpoint.
 
 ```sh
-ORKA_API=http://10.221.188.100 ./install.sh --apply
+ORKA_API=http://10.221.188.20 ./install.sh --apply
 ```
 
 To uninstall from the `default` namespace, run the script with the `-d` or `--delete` flag:
@@ -56,7 +58,7 @@ To uninstall from the `default` namespace, run the script with the `-d` or `--de
 To install in a custom namespace, run the following command against your preferred namespace and your actual Orka API endpoint:
 
 ```sh
-NAMESPACE=tekton-orka ORKA_API=http://10.221.188.100 ./install.sh --apply
+NAMESPACE=tekton-orka ORKA_API=http://10.221.188.20 ./install.sh --apply
 ```
 
 To uninstall from a selected namespace, run the script with the `-d` or `--delete` flag against the namespace:

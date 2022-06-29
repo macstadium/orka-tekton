@@ -1,7 +1,7 @@
 #!/bin/bash
 
 : ${NAMESPACE:="default"}
-: ${ORKA_API:="http://10.221.188.100"}
+: ${ORKA_API:="http://10.221.188.20"}
 
 USAGE=$(cat <<EOF
 Usage:
@@ -12,7 +12,7 @@ Options:
   --help : Display this message
 Environment:
   NAMESPACE : Kubernetes namespace. Defaults to "default"
-  ORKA_API : Orka API endpoint. Defaults to "http://10.221.188.100"
+  ORKA_API : Orka API endpoint. Defaults to "http://10.221.188.20"
 EOF
 )
 
