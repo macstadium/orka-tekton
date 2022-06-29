@@ -2,10 +2,10 @@ name: Orka Tekton Release
 
 on:
   workflow_dispatch:
-  inputs:
-    releaseVersion:
-      description: "Release version (for ex. 0.1-latest)"
-      required: true
+    inputs:
+      releaseVersion:
+        description: "Release version (for ex. 0.1-latest)"
+        required: true
   push:
     branches:
       - jk/release-workflow
