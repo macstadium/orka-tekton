@@ -9,14 +9,13 @@ ORKA_API ?= http://10.221.188.20
 
 .PHONY: help
 help:
-	@echo 'Usage:'
-	@echo -e "\tmake <target>"
-	@echo -e "\nTargets:\n"
-	@echo -e "\tall:\t\tDefault target, same as 'make add-orka-creds add-ssh-creds install'"
-	@echo -e "\tadd-orka-creds:\tCreates secret 'orka-creds', env vars EMAIL and PASSWORD must be set"
-	@echo -e "\tadd-ssh-creds:\tCreates secret 'orka-ssh-creds', env vars SSH_USERNAME and SSH_PASSWORD must be set"
-	@echo -e "\tinstall:\tRuns 'kubectl apply' on all tasks and creates 'orka-tekton-config' config map, ORKA_API env var may be set"
-	@echo -e "\tclean:\t\tRemoves all tasks, secrets and config maps"
+	@echo "Usage:"
+	@echo -e "\tmake <target> [flags...]"
+	@echo -e "\nTargets:"
+	@echo -e "\tall:\tAdd secrets, config maps and install all tasks. Same as 'make add-orka-creds add-ssh-creds install'"
+	@echo -e "\tclean:\tRemove all tasks, secrets and config maps"
+	@echo -e "\tbuild:\tBuild Docker image"
+	@echo -e "\tpush:\tPush Docker image to repository"
 
 .PHONY: all install clean
 all: add-orka-creds add-ssh-creds install
@@ -39,3 +38,10 @@ add-ssh-creds:
 
 .PHONY: add-creds
 add-creds: add-orka-creds add-ssh-creds
+
+.PHONY: build push
+build:
+	@docker build --tag $(IMAGE_REPO):$(IMAGE_TAG) .
+
+push: build
+	@docker push $(IMAGE_REPO):$(IMAGE_TAG)
