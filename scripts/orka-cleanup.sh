@@ -21,7 +21,11 @@ if [ -n "$VM_NAME" ]; then
 fi
 
 if [ -n "$TOKEN" ]; then
-  curl $CURL_FLAGS --request DELETE "${ORKA_API}/token" \
-    --header "Authorization: Bearer $TOKEN"
-  echo -e "\nDone."
+  api_version=$(curl -s $CURL_FLAGS --request GET "${ORKA_API}/health-check" | jq ".api_version" | sed 's/[\.\"]//g')
+
+  if [ $api_version -lt 210 ]; then
+    curl $CURL_FLAGS --request DELETE "${ORKA_API}/token" \
+      --header "Authorization: Bearer $TOKEN"
+    echo -e "\nDone."
+  fi 
 fi
