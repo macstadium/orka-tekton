@@ -2,6 +2,8 @@
 
 : ${NAMESPACE:="default"}
 : ${ORKA_API:="http://10.221.188.20"}
+: ${TEKTON_PIPELINES_NAMESPACE:="tekton-pipelines"}
+: ${TEKTON_PIPELINES_RESOLVERS_NAMESPACE:="tekton-pipelines-resolvers"}
 
 USAGE=$(cat <<EOF
 Usage:
@@ -38,6 +40,31 @@ sed -e 's|$(url)|'"$ORKA_API"'|' resources/orka-tekton-config.yaml.tmpl \
   > resources/orka-tekton-config.yaml
 kubectl $ACTION --namespace=$NAMESPACE -f resources/orka-tekton-config.yaml
 rm -f resources/orka-tekton-config.yaml
+
+if [ $ACTION == "apply" ]; then
+  API_VERSION_RESPONSE=$(curl "${ORKA_API}/version")
+  if [[ "$API_VERSION_RESPONSE" == *"\"api_version\":\"3."* ]]; then
+    # Add tolerations to tekton controller and webhook pods
+    TEKTON_PODS=$(kubectl get pods -n $TEKTON_PIPELINES_NAMESPACE | tail -n +2 |  awk '{print $1}') 
+
+    for pod in $TEKTON_PODS; do
+      kubectl patch pod $pod -n $TEKTON_PIPELINES_NAMESPACE --patch-file "patch-files/patch-pod-tolerations.yaml"
+    done
+
+    TEKTON_RESOLVERS_PODS=$(kubectl get pods -n $TEKTON_PIPELINES_RESOLVERS_NAMESPACE | tail -n +2 |  awk '{print $1}')
+
+    for pod in $TEKTON_RESOLVERS_PODS; do
+      kubectl patch pod $pod -n $TEKTON_PIPELINES_RESOLVERS_NAMESPACE --patch-file "patch-files/patch-pod-tolerations.yaml"
+    done
+
+    # Add tolerations to default pod template in tekton configmap
+    kubectl patch configmap config-defaults -n tekton-pipelines --patch-file "patch-files/patch-configmap-tolerations.yaml"
+
+    # Wait for tekton pods to be up and running
+    kubectl wait pod --all --for=condition=ready -n $TEKTON_PIPELINES_NAMESPACE
+    kubectl wait pod --all --for=condition=ready -n $TEKTON_PIPELINES_RESOLVERS_NAMESPACE
+  fi
+fi
 
 # Install tasks
 kubectl $ACTION --namespace=$NAMESPACE \

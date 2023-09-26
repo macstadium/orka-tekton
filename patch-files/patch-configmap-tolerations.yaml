@@ -1,0 +1,7 @@
+data:
+  default-pod-template: |
+    tolerations:
+      - effect: NoSchedule
+        key: orka.macstadium.com/namespace-reserved
+        operator: Equal
+        value: orka-default
